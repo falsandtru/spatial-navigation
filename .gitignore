@@ -1,0 +1,39 @@
+﻿# binary
+src/ts/**/*.js
+src/ts/**/*.map
+coverage
+dist
+
+# temp
+*.swp
+tmp
+TMP
+temp
+TEMP
+
+# secret
+.coveralls.yml
+
+# vm
+.vagrant
+
+# vs
+*.sln
+*.suo
+bin
+obj
+
+# eclipse
+.project
+.metadata
+.settings
+
+# adobe
+_notes
+
+# node
+node_modules
+
+# gh-pages
+gh-pages/coverage
+gh-pages/test
