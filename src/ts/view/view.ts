@@ -122,7 +122,7 @@ export class View {
         const rect = elem.getBoundingClientRect(),
               point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
                                                              Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-        return isOut() || point === elem || isChild(point);
+        return isOut() || point === elem || isChild(elem, point) || isChild(point, elem);
 
         function isOut() {
           const x = rect.left + ((rect.right - rect.left) / 2),
@@ -130,8 +130,8 @@ export class View {
           return y < 0 || $(window).height() < y
               || x < 0 || $(window).width() < x ;
         }
-        function isChild(target: HTMLElement) {
-          return target ? target.parentElement === elem || isChild(target.parentElement) : false;
+        function isChild(parent: HTMLElement, child: HTMLElement) {
+          return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
         }
       }
     }
