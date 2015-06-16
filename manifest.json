@@ -3,7 +3,7 @@
   "short_name": "spatialnavigation",
   "version": "0.0.1",
   "manifest_version": 2,
-  "description": "Spatial navigation.",
+  "description": "Spatial navigation. Bind WASDE and Q keys.",
   "content_scripts": [
     {
       "matches": [
