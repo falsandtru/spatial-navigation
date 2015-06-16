@@ -1,0 +1,53 @@
+{
+  "name": "spatialnavigation",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "homepage": "https://github.com/falsandtru/spatialnavigation",
+  "repository": "falsandtru/spatialnavigation",
+  "keywords": [],
+  "main": "dist/raw/spatialnavigation.js",
+  "scripts": {
+    "test": "grunt cov"
+  },
+  "dependencies": {
+    "jquery": "^2.1.4",
+    "lazychain": "^0.3.0-alpha.14"
+  },
+  "devDependencies": {
+    "grunt-browserify": "^3.8.0",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-compress": "^0.13.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-karma": "^0.11.0",
+    "grunt-karma-coveralls": "^2.5.3",
+    "grunt-shell-spawn": "0.3.8",
+    "grunt-tslint": "^2.2.0-beta",
+    "grunt-typescript": "^0.6.2",
+    "json": "^9.0.3",
+    "karma": "^0.12.35",
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-coverage": "^0.3.1",
+    "karma-coveralls": "^1.0.1",
+    "karma-html2js-preprocessor": "^0.1.0",
+    "karma-mocha": "^0.1.10",
+    "karma-requirejs": "^0.2.2",
+    "karma-should": "0.0.1",
+    "mocha": "^2.2.5",
+    "requirejs": "^2.1.18",
+    "should": "^6.0.3",
+    "should-sinon": "0.0.1",
+    "sinon": "^1.14.1",
+    "strictify": "^0.2.0",
+    "tsd": "^0.6.0",
+    "typescript": "1.5.0-beta",
+    "typescriptifier": "^1.0.0"
+  },
+  "peerDependencies": {},
+  "author": "falsandtru",
+  "license": "MIT"
+}

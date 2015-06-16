@@ -1,0 +1,24 @@
+{
+  "name": "Spatial Navigation",
+  "short_name": "spatialnavigation",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "Spatial navigation.",
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content-script.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "dist/raw/spatialnavigation.js"
+  ],
+  "permissions": [
+    "<all_urls>",
+    "activeTab"
+  ]
+}
