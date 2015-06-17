@@ -71,11 +71,10 @@ export function analyze(data: MODEL.Data) {
               .sort(sortCursorRightDistance);
 
       case ATTRIBUTE.COMMAND.EXPAND:
-        return !cursor
-          ? []
-          : targets
-              .filter(isInWindow)
-              .sort(sortCursorDistance);
+        cursor = cursor || findTargets(targets, ATTRIBUTE.COMMAND.DOWN, null)[0] || document.body;
+        return targets
+          .filter(isInWindow)
+          .sort(sortCursorDistance);
 
       default:
         return [];

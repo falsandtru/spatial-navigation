@@ -47,6 +47,7 @@ export function map(targets: HTMLElement[]) {
     markers.forEach((elem: HTMLElement) => elem.remove());
 
     if (key && target) {
+      target.focus();
       target.click();
     }
   }
