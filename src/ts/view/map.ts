@@ -1,12 +1,15 @@
 
 import ATTRIBUTE = require('../attribute/attribute');
 
-export function map(targets: HTMLElement[]) {
+export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any) {
   if (targets.length === 0) { return []; }
-
+  
+  const scrollTop = window.scrollY,
+        scrollLeft = window.scrollX;
   const keys = 'fdsaewlioghvnybcm'.split(''),
         markers = <HTMLElement[]>[],
-        observer = document.createElement('input');
+        observer = document.createElement('input'),
+        table = <{ [key: string]: HTMLElement }>{};
   observer.style.cssText = [
     'position: absolute !important;',
     'width: 0px !important;',
@@ -25,12 +28,33 @@ export function map(targets: HTMLElement[]) {
   return targets.slice(0, keys.length)
     .map(target => {
       const marker = document.createElement('span'),
-            key = keys.shift();
+            key = keys.shift(),
+            offset = calOffset(target);
       marker.classList.add(ATTRIBUTE.MARKER_TAG);
       marker.classList.add(ATTRIBUTE.MARKER_TAG + '-' + key);
+      marker.style.cssText = [
+        'position: absolute;',
+        'overflow: visible;',
+        'z-index: 9999;',
+        'top: ' + (offset.top - 5) + 'px;',
+        'left: ' + (offset.left - 12) + 'px;',
+        'margin: 0px;',
+        'border: 0px;',
+        'padding: 1px 3px;',
+        'border-radius: 3px;',
+        'background-color: gold;',
+        'font-family: monospace;',
+        'font-size: 12px;',
+        'font-weight: bold;',
+        'line-height: normal;',
+        'color: black;'
+      ]
+      .map(str => str.split(';')[0] + ' !important;')
+      .join('');
       marker.textContent = key;
       markers.push(marker);
-      target.appendChild(marker);
+      table[key] = target;
+      document.body.appendChild(marker);
       return target;
     });
 
@@ -39,7 +63,7 @@ export function map(targets: HTMLElement[]) {
     event.stopImmediatePropagation();
 
     const key = String.fromCharCode(event.keyCode).toLowerCase(),
-          target = <HTMLElement>(document.querySelector('.' + ATTRIBUTE.MARKER_TAG + '-' + key) || <any>{}).parentElement;
+          target = table[key];
 
     observer.removeEventListener('keydown', handler);
     observer.removeEventListener('blur', handler);
@@ -49,6 +73,16 @@ export function map(targets: HTMLElement[]) {
     if (key && target) {
       target.focus();
       target.click();
+      callback(target);
     }
+  }
+  function calOffset(elem: HTMLElement) {
+    const offset = elem.getBoundingClientRect();
+    return {
+      top: scrollTop + offset.top,
+      left: scrollLeft + offset.left,
+      right: scrollLeft + offset.right,
+      bottom: scrollTop + offset.bottom
+    };
   }
 }

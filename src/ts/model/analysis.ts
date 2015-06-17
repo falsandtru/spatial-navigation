@@ -12,15 +12,17 @@ const QUERY = [
   'button',
   'audio',
   'video',
-  'embed'
+  'embed',
+  '[onclick]'
 ]
 .map(v => v + ':visible')
 .join(',');
 
 export function analyze(data: MODEL.Data) {
-  const $window = $(window),
-        scrollTop = $window.scrollTop(),
-        scrollLeft = $window.scrollLeft();
+  const winWidth = $(window).width(),
+        winHeight = $(window).height(),
+        winTop = $(window).scrollTop(),
+        winLeft = $(window).scrollLeft();
   const targets = $(QUERY).get().filter((elem: HTMLElement) => $(elem).width() > 9
                                                             && $(elem).height() > 9);
   return {
@@ -36,61 +38,106 @@ export function analyze(data: MODEL.Data) {
     switch (command) {
       case ATTRIBUTE.COMMAND.UP:
         return !cursor
-          ? targets
-              .filter(isInWindow)
-              .sort(sortLeftTopDistance)
-          : targets
-              .filter(isInRange(0, 0, Infinity, calOffset(cursor).top))
-              .sort(sortCursorVerticalDistance);
+          ? findLeftTops(targets)
+          : findCursorTops(targets, cursor);
 
       case ATTRIBUTE.COMMAND.DOWN:
         return !cursor
-          ? targets
-              .filter(isInWindow)
-              .sort(sortLeftTopDistance)
-          : targets
-              .filter(isInRange(calOffset(cursor).bottom, 0, Infinity, Infinity))
-              .sort(sortCursorVerticalDistance);
+          ? findMainColumn(targets)
+          : findCursorBottoms(targets, cursor);
 
       case ATTRIBUTE.COMMAND.LEFT:
         return !cursor
-          ? targets
-              .filter(isInWindow)
-              .sort(sortLeftTopDistance)
-          : targets
-              .filter(isInRange(scrollTop, 0, calOffset(cursor).left, scrollTop + $window.height()))
-              .sort(sortCursorLeftDistance);
+          ? findLeftColumn(targets)
+          : findCursorLefts(targets, cursor);
 
       case ATTRIBUTE.COMMAND.RIGHT:
         return !cursor
-          ? targets
-              .filter(isInWindow)
-              .sort(sortLeftTopDistance)
-          : targets
-              .filter(isInRange(scrollTop, calOffset(cursor).right, Infinity, scrollTop + $window.height()))
-              .sort(sortCursorRightDistance);
+          ? findRightColumn(targets)
+          : findCursorRights(targets, cursor);
 
       case ATTRIBUTE.COMMAND.EXPAND:
-        cursor = cursor || findTargets(targets, ATTRIBUTE.COMMAND.DOWN, null)[0] || document.body;
-        return targets
-          .filter(isInWindow)
-          .sort(sortCursorDistance);
+        return findCursorNeerTargets(targets, cursor || findMainColumn(targets)[0] || document.body);
 
       default:
         return [];
     }
+
+    function findLeftTops(targets: HTMLElement[]) {
+      return targets
+        .filter(isInWindow)
+        .sort(compareLeftTopDistance)
+        .filter(isVisible);
+    }
+    function findMainColumn(targets: HTMLElement[]) {
+      return columns(targets)
+        .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
+        .map(group => group.filter(isInWindow).filter(isVisible))
+        .filter(group => group.length > 0)
+        .reduce((_, group) => group)
+        .sort(compareLeftTopDistance);
+    }
+    function findLeftColumn(targets: HTMLElement[]) {
+      const mainColumn = findMainColumn(targets);
+      return columns(targets)
+        .filter(group => group.length > 4)
+        .map(group => group.filter(isInWindow).filter(isVisible))
+        .filter(group => group.length > 0)
+        .reduce((r, group) => calOffset(group[0]).left < calOffset(mainColumn[0]).left ? group : r, mainColumn)
+        .sort(compareLeftTopDistance);
+    }
+    function findRightColumn(targets: HTMLElement[]) {
+      const mainColumn = findMainColumn(targets);
+      return columns(targets)
+        .filter(group => group.length > 4)
+        .map(group => group.filter(isInWindow).filter(isVisible))
+        .filter(group => group.length > 0)
+        .reduce((r, group) => calOffset(group[0]).left > calOffset(mainColumn[0]).left ? group : r, mainColumn)
+        .sort(compareLeftTopDistance);
+    }
+    function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .filter(isInWindow)
+        .sort(compareCursorDistance(cursor))
+        .filter(isVisible);
+    }
+    function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .filter(isInRange(0, 0, Infinity, calOffset(cursor).top))
+        .sort(compareCursorVerticalDistance(cursor))
+        .filter(isVisible);
+    }
+    function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .filter(isInRange(calOffset(cursor).bottom, 0, Infinity, Infinity))
+        .sort(compareCursorVerticalDistance(cursor))
+        .filter(isVisible);
+    }
+    function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .filter(isInRange(winTop, 0, calOffset(cursor).left, winTop + winHeight))
+        .sort(compareCursorLeftDistance(cursor))
+        .filter(isVisible);
+    }
+    function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .filter(isInRange(winTop, calOffset(cursor).right, Infinity, winTop + winHeight))
+        .sort(compareCursorRightDistance(cursor))
+        .filter(isVisible);
+    }
+
     function isCursorActive(cursor: HTMLElement) {
       const rect = cursor && cursor.getBoundingClientRect();
       return !(
         !rect ||
         rect.bottom < 0 ||
-        rect.top > $window.height() ||
+        rect.top > winHeight ||
         rect.right < 0 ||
-        rect.left > $window.width()
+        rect.left > winWidth
       );
     }
     function isInWindow(elem: HTMLElement): boolean {
-      return !!elem && isInRange(scrollTop, scrollLeft, scrollLeft + $window.width(), scrollTop + $window.height())(elem);
+      return !!elem && isInRange(winTop, winLeft, winLeft + winWidth, winTop + winHeight)(elem);
     }
     function isInRange(top: number, left: number, right: number, bottom: number) {
       return function (elem: HTMLElement): boolean {
@@ -99,7 +146,36 @@ export function analyze(data: MODEL.Data) {
             && left <= offset.left && offset.right <= right;
       };
     }
-    function sortLeftTopDistance(a: HTMLElement, b: HTMLElement) {
+    function columns(targets: HTMLElement[]) {
+      return targets
+        .sort(compareLeftDistance)
+        .reduce(groupsByLeftDistance, [])
+        .filter(group => group.length > 1)
+        .sort(compareGroupsByTextAreaAverageSize);
+    }
+    function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
+      if (groups.length === 0) { return [[elem]]; }
+      const group = groups.slice(-1)[0];
+      return isSameGroup(group, elem) ? groups.slice(0, -1).concat([group.concat(elem)]) : groups.concat([[elem]]);
+
+      function isSameGroup(group: HTMLElement[], elem: HTMLElement) {
+        return Math.floor(group[0].getBoundingClientRect().left) === Math.floor(elem.getBoundingClientRect().left);
+      }
+    }
+    function compareGroupsByTextAreaAverageSize(a: HTMLElement[], b: HTMLElement[]) {
+      return calTextAreaAverageSize(a) - calTextAreaAverageSize(b);
+
+      function calTextAreaAverageSize(elems: HTMLElement[]) {
+        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length;
+      }
+      function calTextAreaSize(elem: HTMLElement) {
+        return elem.offsetWidth * elem.offsetHeight;
+      }
+    }
+    function compareLeftDistance(a: HTMLElement, b: HTMLElement) {
+      return Math.floor(a.getBoundingClientRect().left) - Math.floor(b.getBoundingClientRect().left);
+    }
+    function compareLeftTopDistance(a: HTMLElement, b: HTMLElement) {
       return distance(a) - distance(b);
 
       function distance(elem: HTMLElement) {
@@ -110,62 +186,86 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function sortCursorDistance(a: HTMLElement, b: HTMLElement) {
+    function compareCursorDistance(cursor: HTMLElement) {
       const cursoroffset = calOffset(cursor);
-      return distance(a) - distance(b);
+      return function (a: HTMLElement, b: HTMLElement) {
+        return distance(a) - distance(b);
+      };
 
       function distance(elem: HTMLElement) {
         const offset = calOffset(elem);
         return Math.floor(
-            Math.abs(offset.left - cursoroffset.left)
-          + Math.abs(offset.top - cursoroffset.top) * 3
+          Math.abs(offset.left - cursoroffset.left)
+        + Math.abs(offset.top - cursoroffset.top) * 3
         );
       }
     }
-    function sortCursorVerticalDistance(a: HTMLElement, b: HTMLElement) {
+    function compareCursorVerticalDistance(cursor: HTMLElement) {
       const cursoroffset = calOffset(cursor);
-      return distance(a) - distance(b);
+      return function (a: HTMLElement, b: HTMLElement) {
+        return distance(a) - distance(b);
+      };
 
       function distance(elem: HTMLElement) {
         const offset = calOffset(elem);
         return Math.floor(
-            Math.abs(offset.left - cursoroffset.left) * 3
-          + Math.abs(offset.top - cursoroffset.top)
+          Math.abs(offset.left - cursoroffset.left) * 3
+        + Math.abs(offset.top - cursoroffset.top)
         );
       }
     }
-    function sortCursorLeftDistance(a: HTMLElement, b: HTMLElement) {
+    function compareCursorLeftDistance(cursor: HTMLElement) {
       const cursoroffset = calOffset(cursor);
-      return distance(a) - distance(b);
+      return function (a: HTMLElement, b: HTMLElement) {
+        return distance(a) - distance(b);
+      };
 
       function distance(elem: HTMLElement) {
         const offset = calOffset(elem);
         return Math.floor(
-            Math.abs(offset.right - cursoroffset.left)
-          + Math.abs(offset.top - cursoroffset.top) * 5
+          Math.abs(offset.right - cursoroffset.left)
+        + Math.abs(offset.top - cursoroffset.top) * 5
         );
       }
     }
-    function sortCursorRightDistance(a: HTMLElement, b: HTMLElement) {
+    function compareCursorRightDistance(cursor: HTMLElement) {
       const cursoroffset = calOffset(cursor);
-      return distance(a) - distance(b);
+      return function (a: HTMLElement, b: HTMLElement) {
+        return distance(a) - distance(b);
+      };
 
       function distance(elem: HTMLElement) {
         const offset = calOffset(elem);
         return Math.floor(
-            Math.abs(offset.left - cursoroffset.right)
-          + Math.abs(offset.top - cursoroffset.top) * 5
+          Math.abs(offset.left - cursoroffset.right)
+        + Math.abs(offset.top - cursoroffset.top) * 5
         );
       }
     }
     function calOffset(elem: HTMLElement) {
       const offset = elem.getBoundingClientRect();
       return {
-        top: scrollTop + offset.top,
-        left: scrollLeft + offset.left,
-        right: scrollLeft + offset.right,
-        bottom: scrollTop + offset.bottom
+        top: winTop + offset.top,
+        left: winLeft + offset.left,
+        right: winLeft + offset.right,
+        bottom: winTop + offset.bottom
       };
+    }
+    function isVisible(elem: HTMLElement) {
+      const rect = elem.getBoundingClientRect(),
+            point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
+                                                           Math.floor(rect.top + (rect.bottom - rect.top) / 2));
+      return isOut() || point === elem || isChild(elem, point) || point === elem.parentElement;
+
+      function isOut() {
+        const x = rect.left + ((rect.right - rect.left) / 2),
+              y = rect.top + ((rect.bottom - rect.top) / 2);
+        return y < 0 || $(window).height() < y
+            || x < 0 || $(window).width() < x ;
+      }
+      function isChild(parent: HTMLElement, child: HTMLElement) {
+        return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
+      }
     }
   }
 }
