@@ -123,7 +123,7 @@ module.exports = function(grunt) {
       dist: {
         files: [
           { src: 'manifest.json' },
-          { src: 'content-script.js' },
+          { src: 'dist/raw/content-script.js' },
           { src: dstTypeScript }
         ]
       }
