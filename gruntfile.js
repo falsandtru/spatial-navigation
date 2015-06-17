@@ -104,11 +104,13 @@ module.exports = function(grunt) {
     copy: {
       build: {
         files: [
+          { expand: true, cwd: 'src/js/', src: ['*'], dest: 'dist/raw/' },
           { expand: false, src: ['node_modules/lazychain/dist/raw/lazychain.d.ts'], dest: 'src/ts/.d/lazychain.d.ts' }
         ]
       },
       dist: {
         files: [
+          { expand: true, cwd: 'src/js/', src: ['*'], dest: 'dist/raw/' },
           { expand: true, cwd: 'src/ts/.d/', src: ['<%= filename %>.d.ts'], dest: 'dist/raw/' }
         ]
       }
@@ -121,7 +123,7 @@ module.exports = function(grunt) {
       dist: {
         files: [
           { src: 'manifest.json' },
-          { src: 'content-script.js' },
+          { src: 'dist/raw/content-script.js' },
           { src: dstTypeScript }
         ]
       }

@@ -41,7 +41,7 @@ export function analyze(data: MODEL.Data) {
               .sort(sortLeftTopDistance)
           : targets
               .filter(isInRange(0, 0, Infinity, calOffset(cursor).top))
-              .sort(sortCursorLeftLeftDistance);
+              .sort(sortCursorVerticalDistance);
 
       case ATTRIBUTE.COMMAND.DOWN:
         return !cursor
@@ -50,7 +50,7 @@ export function analyze(data: MODEL.Data) {
               .sort(sortLeftTopDistance)
           : targets
               .filter(isInRange(calOffset(cursor).bottom, 0, Infinity, Infinity))
-              .sort(sortCursorLeftLeftDistance);
+              .sort(sortCursorVerticalDistance);
 
       case ATTRIBUTE.COMMAND.LEFT:
         return !cursor
@@ -59,7 +59,7 @@ export function analyze(data: MODEL.Data) {
               .sort(sortLeftTopDistance)
           : targets
               .filter(isInRange(scrollTop, 0, calOffset(cursor).left, scrollTop + $window.height()))
-              .sort(sortCursorLeftRightDistance);
+              .sort(sortCursorLeftDistance);
 
       case ATTRIBUTE.COMMAND.RIGHT:
         return !cursor
@@ -68,7 +68,13 @@ export function analyze(data: MODEL.Data) {
               .sort(sortLeftTopDistance)
           : targets
               .filter(isInRange(scrollTop, calOffset(cursor).right, Infinity, scrollTop + $window.height()))
-              .sort(sortCursorRightLeftDistance);
+              .sort(sortCursorRightDistance);
+
+      case ATTRIBUTE.COMMAND.EXPAND:
+        cursor = cursor || findTargets(targets, ATTRIBUTE.COMMAND.DOWN, null)[0] || document.body;
+        return targets
+          .filter(isInWindow)
+          .sort(sortCursorDistance);
 
       default:
         return [];
@@ -104,7 +110,19 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function sortCursorLeftLeftDistance(a: HTMLElement, b: HTMLElement) {
+    function sortCursorDistance(a: HTMLElement, b: HTMLElement) {
+      const cursoroffset = calOffset(cursor);
+      return distance(a) - distance(b);
+
+      function distance(elem: HTMLElement) {
+        const offset = calOffset(elem);
+        return Math.floor(
+            Math.abs(offset.left - cursoroffset.left)
+          + Math.abs(offset.top - cursoroffset.top) * 3
+        );
+      }
+    }
+    function sortCursorVerticalDistance(a: HTMLElement, b: HTMLElement) {
       const cursoroffset = calOffset(cursor);
       return distance(a) - distance(b);
 
@@ -116,7 +134,7 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function sortCursorLeftRightDistance(a: HTMLElement, b: HTMLElement) {
+    function sortCursorLeftDistance(a: HTMLElement, b: HTMLElement) {
       const cursoroffset = calOffset(cursor);
       return distance(a) - distance(b);
 
@@ -128,7 +146,7 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function sortCursorRightLeftDistance(a: HTMLElement, b: HTMLElement) {
+    function sortCursorRightDistance(a: HTMLElement, b: HTMLElement) {
       const cursoroffset = calOffset(cursor);
       return distance(a) - distance(b);
 

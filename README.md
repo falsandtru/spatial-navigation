@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.3
+
+* Add content key map feature.
+
 ### 0.0.2
 
 * Fix problem on linux.
