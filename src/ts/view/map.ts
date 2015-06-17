@@ -4,7 +4,7 @@ import ATTRIBUTE = require('../attribute/attribute');
 export function map(targets: HTMLElement[]) {
   if (targets.length === 0) { return []; }
 
-  const keys = 'fdsaewjklio'.split(''),
+  const keys = 'fdsaewlioghvnybcm'.split(''),
         markers = <HTMLElement[]>[],
         observer = document.createElement('input');
   observer.style.cssText = [
