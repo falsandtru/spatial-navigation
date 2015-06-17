@@ -80,7 +80,7 @@ export function analyze(data: MODEL.Data) {
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
-        .filter(group => group.length > 4)
+        .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left < calOffset(mainColumn[0]).left ? group : r, mainColumn)
@@ -89,7 +89,7 @@ export function analyze(data: MODEL.Data) {
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
-        .filter(group => group.length > 4)
+        .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left > calOffset(mainColumn[0]).left ? group : r, mainColumn)
@@ -166,7 +166,7 @@ export function analyze(data: MODEL.Data) {
       return calTextAreaAverageSize(a) - calTextAreaAverageSize(b);
 
       function calTextAreaAverageSize(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length;
+        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length * (elems.length / 5 + 0.5);
       }
       function calTextAreaSize(elem: HTMLElement) {
         return elem.offsetWidth * elem.offsetHeight;
