@@ -10,7 +10,7 @@
         "<all_urls>"
       ],
       "js": [
-        "content-script.js"
+        "/dist/raw/content-script.js"
       ]
     }
   ],
