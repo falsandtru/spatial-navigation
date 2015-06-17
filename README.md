@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.5
+
+* Improve column selection.
+
 ### 0.0.4
 
 * Add column selection feature.
