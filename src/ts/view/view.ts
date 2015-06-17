@@ -22,8 +22,9 @@ export class View {
     this.observe_();
     this.style.innerHTML = [
       '.' + ATTRIBUTE.CURSOR_ID + ' {',
-      '  outline: 4px solid turquoise !important;',
-      '  outline-offset: -1px;',
+      '  outline: 2px solid turquoise !important;',
+      '  outline-offset: -1px !important;',
+      '  background-color: rgba(255, 255, 0, 0.4) !important;',
       '}'
     ].join('\n');
   }
