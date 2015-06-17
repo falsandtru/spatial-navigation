@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.7
+
+* Fix bug.
+
 ### 0.0.6
 
 * Support japanese input mode.

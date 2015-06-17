@@ -255,7 +255,8 @@ export function analyze(data: MODEL.Data) {
       const rect = elem.getBoundingClientRect(),
             point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
                                                            Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-      return isInWindow(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement);
+      // 画面外は検査できないので無条件でパス
+      return !isInWindow(elem) || point === elem || isChild(elem, point) || point === elem.parentElement;
 
       function isChild(parent: HTMLElement, child: HTMLElement) {
         return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
