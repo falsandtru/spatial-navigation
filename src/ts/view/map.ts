@@ -23,7 +23,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
   ].join('');
   document.body.appendChild(observer);
   observer.focus();
-  observer.addEventListener('keydown', handler);
+  observer.addEventListener('input', handler);
   observer.addEventListener('blur', handler);
   return targets.slice(0, keys.length)
     .map(target => {
@@ -62,7 +62,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    const key = String.fromCharCode(event.keyCode).toLowerCase(),
+    const key = ja2en((<any>event.target).value).toLowerCase(),
           target = table[key];
 
     observer.removeEventListener('keydown', handler);
@@ -84,5 +84,64 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
       right: scrollLeft + offset.right,
       bottom: scrollTop + offset.bottom
     };
+  }
+}
+
+function ja2en(char: string) {
+  switch (char) {
+    case 'ｑ':
+      return 'q';
+    case 'ｗ':
+      return 'w';
+    case 'え':
+      return 'e';
+    case 'ｒ':
+      return 'r';
+    case 'ｔ':
+      return 't';
+    case 'ｙ':
+      return 'y';
+    case 'う':
+      return 'u';
+    case 'い':
+      return 'i';
+    case 'お':
+      return 'o';
+    case 'ｐ':
+      return 'p';
+    case 'あ':
+      return 'a';
+    case 'ｓ':
+      return 's';
+    case 'ｄ':
+      return 'd';
+    case 'ｆ':
+      return 'f';
+    case 'ｇ':
+      return 'g';
+    case 'ｈ':
+      return 'h';
+    case 'ｊ':
+      return 'j';
+    case 'ｋ':
+      return 'k';
+    case 'ｌ':
+      return 'l';
+    case 'ｚ':
+      return 'z';
+    case 'ｘ':
+      return 'x';
+    case 'ｃ':
+      return 'c';
+    case 'ｖ':
+      return 'v';
+    case 'ｂ':
+      return 'b';
+    case 'ｎ':
+      return 'n';
+    case 'ｍ':
+      return 'm';
+    default:
+      return char;
   }
 }

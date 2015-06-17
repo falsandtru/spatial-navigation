@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.6
+
+* Support japanese input mode.
+
 ### 0.0.5
 
 * Improve column selection.
