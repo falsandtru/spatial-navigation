@@ -72,7 +72,7 @@ export function analyze(data: MODEL.Data) {
     function findMainColumn(targets: HTMLElement[]) {
       return columns(targets)
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((_, group) => group)
         .sort(compareLeftTopDistance);
@@ -81,7 +81,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left < calOffset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
@@ -90,7 +90,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left > calOffset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
@@ -255,14 +255,8 @@ export function analyze(data: MODEL.Data) {
       const rect = elem.getBoundingClientRect(),
             point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
                                                            Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-      return isOut() || point === elem || isChild(elem, point) || point === elem.parentElement;
+      return isInWindow(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement);
 
-      function isOut() {
-        const x = rect.left + ((rect.right - rect.left) / 2),
-              y = rect.top + ((rect.bottom - rect.top) / 2);
-        return y < 0 || $(window).height() < y
-            || x < 0 || $(window).width() < x ;
-      }
       function isChild(parent: HTMLElement, child: HTMLElement) {
         return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
       }
