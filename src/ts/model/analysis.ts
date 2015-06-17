@@ -72,7 +72,7 @@ export function analyze(data: MODEL.Data) {
     function findMainColumn(targets: HTMLElement[]) {
       return columns(targets)
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
-        .map(group => group.filter(isVisible))
+        .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((_, group) => group)
         .sort(compareLeftTopDistance);
@@ -81,7 +81,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isVisible))
+        .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left < calOffset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
@@ -90,7 +90,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isVisible))
+        .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
         .reduce((r, group) => calOffset(group[0]).left > calOffset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
