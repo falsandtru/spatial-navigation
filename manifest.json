@@ -10,15 +10,12 @@
         "<all_urls>"
       ],
       "js": [
-        "/dist/raw/content-script.js"
-      ]
+        "dist/raw/spatialnavigation.js"
+      ],
+      "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": [
-    "dist/raw/spatialnavigation.js"
-  ],
   "permissions": [
-    "<all_urls>",
-    "activeTab"
+    "<all_urls>"
   ]
 }
