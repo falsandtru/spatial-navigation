@@ -4,6 +4,7 @@
 
 ### 0.0.4
 
+* Add column selection feature.
 * Improve content key map behavior.
 
 ### 0.0.3
