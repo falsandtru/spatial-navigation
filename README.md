@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.8
+
+* Fix bug.
+
 ### 0.0.7
 
 * Fix bug.
