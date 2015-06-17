@@ -1,13 +1,10 @@
 
-//export const identity4dom = NAME;
-//export const classify4dom = NAME;
-
 export const enum COMMAND {
   UP,
   DOWN,
   LEFT,
   RIGHT,
-  //EXPAND,
+  EXPAND,
   //CONTRACT,
   ENTER,
   QUIT,
@@ -19,7 +16,7 @@ const enum KEYMAP {
   a = 97,
   s = 115,
   d = 100,
-  //e = 101,
+  e = 101,
   //E = 69,
   q = 113,
   Enter = 13
@@ -30,13 +27,15 @@ const enum CMDMAP {
   LEFT = KEYMAP.a,
   DOWN = KEYMAP.s,
   RIGHT = KEYMAP.d,
-  //EXPAND = KEYMAP.e,
+  EXPAND = KEYMAP.e,
   //CONTRACT = KEYMAP.E,
   QUIT = KEYMAP.q,
   ENTER = KEYMAP.Enter
 }
 
 export const CURSOR_ID = 'spatialnavigation-cursor';
+
+export const MARKER_TAG = 'spatialnavigation-marker';
 
 export interface AttributeInterface {
   command: COMMAND;
@@ -56,8 +55,8 @@ export function key2command(event: KeyboardEvent): COMMAND {
   switch (keyCode) {
     case CMDMAP.QUIT:
       return COMMAND.QUIT;
-    //case CMDMAP.EXPAND:
-    //  return COMMAND.EXPAND;
+    case CMDMAP.EXPAND:
+      return COMMAND.EXPAND;
     //case CMDMAP.CONTRACT:
     //  return COMMAND.CONTRACT;
     case CMDMAP.UP:

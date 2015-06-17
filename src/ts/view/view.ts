@@ -7,6 +7,8 @@ import CONTROLLER = require('../controller/controller');
 
 import STATE = require('../state/module');
 
+import MAP = require('./map');
+
 import $ = require('jquery');
 
 var id = 0;
@@ -24,6 +26,19 @@ export class View {
       '.' + ATTRIBUTE.CURSOR_ID + ' {',
       '  outline: 4px solid turquoise !important;',
       '  outline-offset: -1px;',
+      '}',
+      '.' + ATTRIBUTE.MARKER_TAG + ' {',
+      '  position: absolute !important;',
+      '  background-color: gold !important;',
+      '  margin: 0px !important;',
+      '  border: 0px !important;',
+      '  padding: 3px !important;',
+      '  border-radius: 3px !important;',
+      '  font-family: monospace !important;',
+      '  font-size: 12px !important;',
+      '  font-weight: bold !important;',
+      '  line-height: normal !important;',
+      '  color: black !important;',
       '}'
     ].join('\n');
   }
@@ -82,7 +97,7 @@ export class View {
       }
     }
 
-    function markTarget(targets: Element[]) {
+    function markTarget(targets: HTMLElement[]) {
       switch (command) {
         case ATTRIBUTE.COMMAND.UP:
         case ATTRIBUTE.COMMAND.DOWN:
@@ -93,6 +108,10 @@ export class View {
           unmark();
           mark(target);
           (<any>target).scrollIntoViewIfNeeded();
+          break;
+
+        case ATTRIBUTE.COMMAND.EXPAND:
+          MAP.map(targets);
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:

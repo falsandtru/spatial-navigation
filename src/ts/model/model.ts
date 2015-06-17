@@ -21,7 +21,7 @@ export type Data = {
 };
 
 export interface Result {
-  targets: Element[];
+  targets: HTMLElement[];
 }
 
 const views: VIEW.View[] = [];
