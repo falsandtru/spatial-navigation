@@ -12,15 +12,17 @@ const QUERY = [
   'button',
   'audio',
   'video',
-  'embed'
+  'embed',
+  '[onclick]'
 ]
 .map(v => v + ':visible')
 .join(',');
 
 export function analyze(data: MODEL.Data) {
-  const $window = $(window),
-        scrollTop = $window.scrollTop(),
-        scrollLeft = $window.scrollLeft();
+  const winWidth = $(window).width(),
+        winHeight = $(window).height(),
+        winTop = $(window).scrollTop(),
+        winLeft = $(window).scrollLeft();
   const targets = $(QUERY).get().filter((elem: HTMLElement) => $(elem).width() > 9
                                                             && $(elem).height() > 9);
   return {
@@ -39,42 +41,60 @@ export function analyze(data: MODEL.Data) {
           ? targets
               .filter(isInWindow)
               .sort(sortLeftTopDistance)
+              .slice(0, 1000)
+              .filter(isVisible)
           : targets
               .filter(isInRange(0, 0, Infinity, calOffset(cursor).top))
-              .sort(sortCursorVerticalDistance);
+              .sort(sortCursorVerticalDistance)
+              .slice(0, 1000)
+              .filter(isVisible);
 
       case ATTRIBUTE.COMMAND.DOWN:
         return !cursor
           ? targets
               .filter(isInWindow)
               .sort(sortLeftTopDistance)
+              .slice(0, 1000)
+              .filter(isVisible)
           : targets
               .filter(isInRange(calOffset(cursor).bottom, 0, Infinity, Infinity))
-              .sort(sortCursorVerticalDistance);
+              .sort(sortCursorVerticalDistance)
+              .slice(0, 1000)
+              .filter(isVisible);
 
       case ATTRIBUTE.COMMAND.LEFT:
         return !cursor
           ? targets
               .filter(isInWindow)
               .sort(sortLeftTopDistance)
+              .slice(0, 1000)
+              .filter(isVisible)
           : targets
-              .filter(isInRange(scrollTop, 0, calOffset(cursor).left, scrollTop + $window.height()))
-              .sort(sortCursorLeftDistance);
+              .filter(isInRange(winTop, 0, calOffset(cursor).left, winTop + winHeight))
+              .sort(sortCursorLeftDistance)
+              .slice(0, 1000)
+              .filter(isVisible);
 
       case ATTRIBUTE.COMMAND.RIGHT:
         return !cursor
           ? targets
               .filter(isInWindow)
               .sort(sortLeftTopDistance)
+              .slice(0, 1000)
+              .filter(isVisible)
           : targets
-              .filter(isInRange(scrollTop, calOffset(cursor).right, Infinity, scrollTop + $window.height()))
-              .sort(sortCursorRightDistance);
+              .filter(isInRange(winTop, calOffset(cursor).right, Infinity, winTop + winHeight))
+              .sort(sortCursorRightDistance)
+              .slice(0, 1000)
+              .filter(isVisible);
 
       case ATTRIBUTE.COMMAND.EXPAND:
         cursor = cursor || findTargets(targets, ATTRIBUTE.COMMAND.DOWN, null)[0] || document.body;
         return targets
           .filter(isInWindow)
-          .sort(sortCursorDistance);
+          .sort(sortCursorDistance)
+          .slice(0, 1000)
+          .filter(isVisible);
 
       default:
         return [];
@@ -84,13 +104,13 @@ export function analyze(data: MODEL.Data) {
       return !(
         !rect ||
         rect.bottom < 0 ||
-        rect.top > $window.height() ||
+        rect.top > winHeight ||
         rect.right < 0 ||
-        rect.left > $window.width()
+        rect.left > winWidth
       );
     }
     function isInWindow(elem: HTMLElement): boolean {
-      return !!elem && isInRange(scrollTop, scrollLeft, scrollLeft + $window.width(), scrollTop + $window.height())(elem);
+      return !!elem && isInRange(winTop, winLeft, winLeft + winWidth, winTop + winHeight)(elem);
     }
     function isInRange(top: number, left: number, right: number, bottom: number) {
       return function (elem: HTMLElement): boolean {
@@ -161,11 +181,27 @@ export function analyze(data: MODEL.Data) {
     function calOffset(elem: HTMLElement) {
       const offset = elem.getBoundingClientRect();
       return {
-        top: scrollTop + offset.top,
-        left: scrollLeft + offset.left,
-        right: scrollLeft + offset.right,
-        bottom: scrollTop + offset.bottom
+        top: winTop + offset.top,
+        left: winLeft + offset.left,
+        right: winLeft + offset.right,
+        bottom: winTop + offset.bottom
       };
+    }
+    function isVisible(elem: HTMLElement) {
+      const rect = elem.getBoundingClientRect(),
+            point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
+                                                           Math.floor(rect.top + (rect.bottom - rect.top) / 2));
+      return isOut() || point === elem || isChild(elem, point) || isChild(point, elem);
+
+      function isOut() {
+        const x = rect.left + ((rect.right - rect.left) / 2),
+              y = rect.top + ((rect.bottom - rect.top) / 2);
+        return y < 0 || $(window).height() < y
+            || x < 0 || $(window).width() < x ;
+      }
+      function isChild(parent: HTMLElement, child: HTMLElement) {
+        return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
+      }
     }
   }
 }

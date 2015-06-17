@@ -9,8 +9,6 @@ import STATE = require('../state/module');
 
 import MAP = require('./map');
 
-import $ = require('jquery');
-
 var id = 0;
 const views: { [id: number]: View } = {};
 
@@ -26,19 +24,6 @@ export class View {
       '.' + ATTRIBUTE.CURSOR_ID + ' {',
       '  outline: 4px solid turquoise !important;',
       '  outline-offset: -1px;',
-      '}',
-      '.' + ATTRIBUTE.MARKER_TAG + ' {',
-      '  position: absolute !important;',
-      '  background-color: gold !important;',
-      '  margin: 0px !important;',
-      '  border: 0px !important;',
-      '  padding: 3px !important;',
-      '  border-radius: 3px !important;',
-      '  font-family: monospace !important;',
-      '  font-size: 12px !important;',
-      '  font-weight: bold !important;',
-      '  line-height: normal !important;',
-      '  color: black !important;',
       '}'
     ].join('\n');
   }
@@ -103,15 +88,14 @@ export class View {
         case ATTRIBUTE.COMMAND.DOWN:
         case ATTRIBUTE.COMMAND.LEFT:
         case ATTRIBUTE.COMMAND.RIGHT:
-          const target = targets.filter(isVisible)[0];
+          const target = targets[0];
           if (!target) { break; }
-          unmark();
           mark(target);
           (<any>target).scrollIntoViewIfNeeded();
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
-          MAP.map(targets);
+          MAP.map(targets, (target) => (target.tagName.toLowerCase() === 'a' || target.onclick) && mark(target));
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:
@@ -131,27 +115,12 @@ export class View {
       return;
 
       function mark(elem: Element) {
+        unmark();
         elem.classList.add(ATTRIBUTE.CURSOR_ID);
       }
       function unmark() {
         const marker = document.querySelector('.' + ATTRIBUTE.CURSOR_ID) || document.createElement('div');
         marker.classList.remove(ATTRIBUTE.CURSOR_ID);
-      }
-      function isVisible(elem: HTMLElement) {
-        const rect = elem.getBoundingClientRect(),
-              point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
-                                                             Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-        return isOut() || point === elem || isChild(elem, point) || isChild(point, elem);
-
-        function isOut() {
-          const x = rect.left + ((rect.right - rect.left) / 2),
-                y = rect.top + ((rect.bottom - rect.top) / 2);
-          return y < 0 || $(window).height() < y
-              || x < 0 || $(window).width() < x ;
-        }
-        function isChild(parent: HTMLElement, child: HTMLElement) {
-          return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
-        }
       }
     }
   }
