@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.7
+
+* Improve navigation target detection.
+
 ### 0.1.6
 
 * Improve url display style.
