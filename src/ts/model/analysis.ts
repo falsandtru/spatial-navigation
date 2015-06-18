@@ -14,7 +14,11 @@ const QUERY = [
   'video',
   'embed',
   '[onclick]',
-  '[role="button"]'
+  '[role="link"]',
+  '[role="button"]',
+  '[role="checkbox"]',
+  '[role="tab"]',
+  '[role="menuitem"]'
 ]
 .map(v => v + ':visible')
 .join(',');

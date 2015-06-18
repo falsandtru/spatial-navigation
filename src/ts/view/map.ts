@@ -23,10 +23,11 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   ]
   .map(str => str.split(';')[0] + ' !important;')
   .join('');
-  document.body.appendChild(observer);
-  observer.focus();
   observer.addEventListener('input', handler);
   observer.addEventListener('blur', handler);
+  document.body.appendChild(observer);
+  observer.focus();
+  setTimeout(() => observer.focus(), 1000);
   return targets.slice(0, keys.length)
     .map(target => {
       const marker = document.createElement('span'),
