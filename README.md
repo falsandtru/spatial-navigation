@@ -5,6 +5,7 @@
 ### 0.1.5
 
 * Add url display feature.
+* Improve navigation target detection.
 
 ### 0.1.4
 

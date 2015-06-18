@@ -13,7 +13,8 @@ const QUERY = [
   'audio',
   'video',
   'embed',
-  '[onclick]'
+  '[onclick]',
+  '[role="button"]'
 ]
 .map(v => v + ':visible')
 .join(',');

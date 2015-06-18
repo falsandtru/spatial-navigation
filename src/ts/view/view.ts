@@ -148,7 +148,7 @@ export class View {
 
         case ATTRIBUTE.COMMAND.EXPAND:
           MAP.map(targets, (target, shiftKey) => {
-            if (target.tagName.toLowerCase() === 'a' || target.onclick) {
+            if (target.tagName.toLowerCase() === 'a' || target.onclick || target.getAttribute('role') === 'button') {
               select(target);
             }
             trigger(target, shiftKey);
