@@ -35,6 +35,7 @@ const enum CMDMAP {
 }
 
 export const CURSOR_ID = 'spatialnavigation-cursor';
+export const URLDISPLAY_ID = 'spatialnavigation-urldisplay';
 
 export const MARKER_TAG = 'spatialnavigation-marker';
 
