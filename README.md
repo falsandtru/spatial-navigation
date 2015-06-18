@@ -5,6 +5,7 @@
 ### 0.1.4
 
 * Improve content key map style.
+* Improve column selection.
 
 ### 0.1.3
 
