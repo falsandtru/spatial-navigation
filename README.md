@@ -2,9 +2,14 @@
 
 ## ChangeLog
 
+### 0.1.4
+
+* Improve content key map style.
+* Improve column selection.
+
 ### 0.1.3
 
-* Support open link in new tab for selection link.
+* Support open link in new tab for selected link.
 
 ### 0.1.2
 

@@ -150,6 +150,8 @@ export function analyze(data: MODEL.Data) {
       return targets
         .sort(compareLeftDistance)
         .reduce(groupsByLeftDistance, [])
+        .map(filterFewNodesGroup)
+        .filter(group => group.length > 1)
         .sort(compareGroupsByTextAreaAverageSize);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
@@ -169,6 +171,31 @@ export function analyze(data: MODEL.Data) {
       }
       function calTextAreaSize(elem: HTMLElement) {
         return elem.offsetWidth * elem.offsetHeight;
+      }
+    }
+    function filterFewNodesGroup(group: HTMLElement[]) {
+      return groupsByNodeDistanceFromRoot(group)
+        .filter(group => group.length > 1)
+        .reduce((r, group) => r.concat(group), []);
+    }
+    function groupsByNodeDistanceFromRoot(group: HTMLElement[]) {
+      return group
+        .sort(compareByNodeDistanceFromRoot)
+        .reduce((r, elem) => r.length === 0 ? [[elem]]
+                                            : compareByNodeDistanceFromRoot(r[0][0], elem) === 0 ? [[elem].concat(r[0])].concat(r.slice(1))
+                                                                                                 : [[elem]].concat(r)
+        , <HTMLElement[][]>[]);
+    }
+    function compareByNodeDistanceFromRoot(a: HTMLElement, b: HTMLElement) {
+      return countNodeDistanceFromRoot(a) - countNodeDistanceFromRoot(b);
+
+      function countNodeDistanceFromRoot(elem: HTMLElement) {
+        var count = 0,
+          parent: HTMLElement = elem;
+        while (parent = parent.parentElement) {
+          ++count;
+        }
+        return count;
       }
     }
     function compareLeftDistance(a: HTMLElement, b: HTMLElement) {
