@@ -38,13 +38,14 @@ export class View {
     display.id = ATTRIBUTE.URLDISPLAY_ID;
     display.style.cssText = [
       'position: fixed;',
+      'z-index: 9999;',
       'left: 0px;',
       'bottom: 0px;',
       'min-width: 30%;',
       'padding: 3px;',
       'background-color: rgb(225, 225, 225);',
       'border-radius: 3px 3px 0px 3px;',
-      'font-family: sans-serif;',
+      'font-family: Meiryo, Helvetica, sans-serif;',
       'font-size: 11.5px;',
       'color: rgb(130, 130, 130);',
       'text-align: left;'

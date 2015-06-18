@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.6
+
+* Improve url display style.
+
 ### 0.1.5
 
 * Add url display feature.
