@@ -7,6 +7,7 @@ export const enum COMMAND {
   EXPAND,
   //CONTRACT,
   ENTER,
+  S_ENTER,
   QUIT,
   INVALID
 }
@@ -68,7 +69,7 @@ export function key2command(event: KeyboardEvent): COMMAND {
     case CMDMAP.RIGHT:
       return COMMAND.RIGHT;
     case CMDMAP.ENTER:
-      return COMMAND.ENTER;
+      return event.shiftKey ? COMMAND.S_ENTER : COMMAND.ENTER;
     default:
       return COMMAND.INVALID;
   }
