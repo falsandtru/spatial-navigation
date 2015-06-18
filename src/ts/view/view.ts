@@ -31,7 +31,55 @@ export class View {
   private id_ = ++id;
   private target_: Window|Document|Element;
   private style = document.createElement('style');
+
+  private showUrl_(cursor: HTMLElement) {
+    if (cursor.tagName.toLowerCase() !== 'a') { return; }
+    const display = document.createElement('span');
+    display.id = ATTRIBUTE.URLDISPLAY_ID;
+    display.style.cssText = [
+      'position: fixed;',
+      'left: 0px;',
+      'bottom: 0px;',
+      'min-width: 30%;',
+      'padding: 3px;',
+      'background-color: rgb(225, 225, 225);',
+      'border-radius: 3px 3px 0px 3px;',
+      'font-family: sans-serif;',
+      'font-size: 11.5px;',
+      'color: rgb(130, 130, 130);',
+      'text-align: left;'
+    ]
+    .map(str => str.split(';')[0] + ' !important;')
+    .join('');
+    display.textContent = (<HTMLAnchorElement>cursor).href;
+    document.body.appendChild(display);
+  }
+  private hideUrl_() {
+    const display = document.querySelector('#' + ATTRIBUTE.URLDISPLAY_ID);
+    if (!display) { return; }
+    display.remove();
+  }
+
+  private click_(elem: HTMLElement, newtab: boolean) {
+    ["mouseover", "mousedown", "mouseup", "click"]
+      .forEach(sequence => {
+        const mouseEvent: any = document.createEvent("MouseEvents");
+        mouseEvent.initMouseEvent(
+          sequence,
+          true, true, window, 1, 0, 0, 0, 0,
+          newtab,
+          false,
+          false,
+          false,
+          0, null
+        );
+        elem.dispatchEvent(mouseEvent);
+      });
+  }
+
   private handler_(event: KeyboardEvent) {
+    this.hideUrl_();
+
     if (!state()) { return; }
     if (event.defaultPrevented) { return; }
     if (isInserting(event.srcElement)) { return; }
@@ -72,6 +120,7 @@ export class View {
   }
 
   update(command: ATTRIBUTE.COMMAND) {
+    const view = this;
     if (!this.style.parentElement) {
       document.head.appendChild(this.style);
     }
@@ -93,14 +142,14 @@ export class View {
         case ATTRIBUTE.COMMAND.RIGHT:
           const target = targets[0];
           if (!target) { break; }
-          mark(target);
+          select(target);
           (<any>target).scrollIntoViewIfNeeded();
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
           MAP.map(targets, (target, shiftKey) => {
-            if (target.tagName.toLowerCase() === 'a' || target.onclick) {
-              mark(target);
+            if (target.tagName.toLowerCase() === 'a' || target.onclick || target.getAttribute('role') === 'button') {
+              select(target);
             }
             trigger(target, shiftKey);
           });
@@ -115,26 +164,29 @@ export class View {
           break;
 
         default:
-          unmark();
+          unselect();
       }
       return;
 
-      function mark(elem: HTMLElement) {
-        unmark();
+      function select(elem: HTMLElement) {
+        unselect();
+        view.showUrl_(elem);
         elem.classList.add(ATTRIBUTE.CURSOR_ID);
       }
-      function unmark() {
+      function unselect() {
         const marker = document.querySelector('.' + ATTRIBUTE.CURSOR_ID);
         if (!marker) { return; }
         marker.classList.remove(ATTRIBUTE.CURSOR_ID);
+        view.hideUrl_();
       }
       function trigger(cursor: HTMLElement, shiftKey: boolean) {
         if (!cursor) { return; }
         cursor.focus();
-        click(cursor, shiftKey);
+        view.click_(cursor, shiftKey);
       }
     }
   }
+
   destroy() {
     this.destructor();
   }
@@ -149,21 +201,4 @@ export function emit(entity: ENTITY.EntityInterface, attribute: ATTRIBUTE.Attrib
   else {
     return false;
   }
-}
-
-function click(elem: HTMLElement, newtab: boolean) {
-  ["mouseover", "mousedown", "mouseup", "click"]
-    .forEach(sequence => {
-      const mouseEvent: any = document.createEvent("MouseEvents");
-      mouseEvent.initMouseEvent(
-        sequence,
-        true, true, window, 1, 0, 0, 0, 0,
-        newtab,
-        false,
-        false,
-        false,
-        0, null
-      );
-      elem.dispatchEvent(mouseEvent);
-    });
 }
