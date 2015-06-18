@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.3
+
+* Support open link in new tab for selection link.
+
 ### 0.1.2
 
 * Improve column selection.
@@ -12,7 +16,7 @@
 
 ### 0.1.0
 
-* Support open link in new tab.
+* Support open link in new tab for key mapped links.
 
 ### 0.0.9
 

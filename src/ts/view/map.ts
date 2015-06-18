@@ -1,7 +1,7 @@
 
 import ATTRIBUTE = require('../attribute/attribute');
 
-export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any) {
+export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftKey: boolean) => any) {
   if (targets.length === 0) { return []; }
   
   const scrollTop = window.scrollY,
@@ -65,10 +65,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
     event.stopImmediatePropagation();
 
     const key = ja2en((<any>event.target).value),
-          ctrlKey = key === key.toUpperCase(),
-          shiftKey = false,
-          altKey = false,
-          metaKey = false,
+          shiftKey = key === key.toUpperCase(),
           target = table[key.toLowerCase()];
 
     observer.removeEventListener('keydown', handler);
@@ -76,9 +73,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
     markers.forEach((elem: HTMLElement) => elem.remove());
 
     if (key && target) {
-      target.focus();
-      click(target, { ctrlKey, shiftKey, altKey, metaKey });
-      callback(target);
+      callback(target, shiftKey);
     }
 
     observer.blur();
@@ -95,30 +90,6 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
   }
 }
 
-type Modifiers = {
-  shiftKey: boolean
-  ctrlKey: boolean
-  altKey: boolean
-  metaKey: boolean
-};
-function click(elem: HTMLElement, modifiers: Modifiers) {
-  modifiers = modifiers || <Modifiers>{};
-
-  ["mouseover", "mousedown", "mouseup", "click"]
-    .forEach(sequence => {
-      const mouseEvent: any = document.createEvent("MouseEvents");
-      mouseEvent.initMouseEvent(
-        sequence,
-        true, true, window, 1, 0, 0, 0, 0,
-        modifiers.ctrlKey,
-        modifiers.altKey,
-        modifiers.shiftKey,
-        modifiers.metaKey,
-        0, null
-      );
-      elem.dispatchEvent(mouseEvent);
-    });
-}
 function ja2en(char: string) {
   switch (char) {
     case 'ｑ':

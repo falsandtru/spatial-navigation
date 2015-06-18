@@ -41,6 +41,8 @@ export class View {
           attribute = ATTRIBUTE.attribute(event, cursor);
 
     if (attribute.command === ATTRIBUTE.COMMAND.INVALID) { return; }
+    if (!cursor && attribute.command === ATTRIBUTE.COMMAND.ENTER) { return; }
+    if (!cursor && attribute.command === ATTRIBUTE.COMMAND.S_ENTER) { return; }
 
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -96,18 +98,20 @@ export class View {
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
-          MAP.map(targets, (target) => (target.tagName.toLowerCase() === 'a' || target.onclick) && mark(target));
+          MAP.map(targets, (target, shiftKey) => {
+            if (target.tagName.toLowerCase() === 'a' || target.onclick) {
+              mark(target);
+            }
+            trigger(target, shiftKey);
+          });
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:
-          const cursor = <HTMLElement>document.querySelector('.' + ATTRIBUTE.CURSOR_ID) || document.createElement('div');
-          switch (cursor.tagName.toLowerCase()) {
-            case 'input':
-            case 'textarea':
-              cursor.focus();
-          }
-          cursor.click();
-          unmark();
+          trigger(<HTMLElement>document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false);
+          break;
+
+        case ATTRIBUTE.COMMAND.S_ENTER:
+          trigger(<HTMLElement>document.querySelector('.' + ATTRIBUTE.CURSOR_ID), true);
           break;
 
         default:
@@ -115,13 +119,19 @@ export class View {
       }
       return;
 
-      function mark(elem: Element) {
+      function mark(elem: HTMLElement) {
         unmark();
         elem.classList.add(ATTRIBUTE.CURSOR_ID);
       }
       function unmark() {
-        const marker = document.querySelector('.' + ATTRIBUTE.CURSOR_ID) || document.createElement('div');
+        const marker = document.querySelector('.' + ATTRIBUTE.CURSOR_ID);
+        if (!marker) { return; }
         marker.classList.remove(ATTRIBUTE.CURSOR_ID);
+      }
+      function trigger(cursor: HTMLElement, shiftKey: boolean) {
+        if (!cursor) { return; }
+        cursor.focus();
+        click(cursor, shiftKey);
       }
     }
   }
@@ -139,4 +149,21 @@ export function emit(entity: ENTITY.EntityInterface, attribute: ATTRIBUTE.Attrib
   else {
     return false;
   }
+}
+
+function click(elem: HTMLElement, newtab: boolean) {
+  ["mouseover", "mousedown", "mouseup", "click"]
+    .forEach(sequence => {
+      const mouseEvent: any = document.createEvent("MouseEvents");
+      mouseEvent.initMouseEvent(
+        sequence,
+        true, true, window, 1, 0, 0, 0, 0,
+        newtab,
+        false,
+        false,
+        false,
+        0, null
+      );
+      elem.dispatchEvent(mouseEvent);
+    });
 }
