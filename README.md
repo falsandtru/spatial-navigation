@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.2
+
+* Improve column selection.
+
 ### 0.1.1
 
 * Fix bug.

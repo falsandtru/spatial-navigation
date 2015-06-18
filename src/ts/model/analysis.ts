@@ -165,7 +165,7 @@ export function analyze(data: MODEL.Data) {
       return calTextAreaAverageSize(a) - calTextAreaAverageSize(b);
 
       function calTextAreaAverageSize(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length * (elems.length / 5 + 0.5);
+        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length * (Math.min(elems.length, 5) / 5 + 0.5);
       }
       function calTextAreaSize(elem: HTMLElement) {
         return elem.offsetWidth * elem.offsetHeight;
