@@ -74,7 +74,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
         .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
-        .reduce((_, group) => group)
+        .reduce((_, group) => group, findLeftTops(targets))
         .sort(compareLeftTopDistance);
     }
     function findLeftColumn(targets: HTMLElement[]) {
@@ -150,7 +150,6 @@ export function analyze(data: MODEL.Data) {
       return targets
         .sort(compareLeftDistance)
         .reduce(groupsByLeftDistance, [])
-        .filter(group => group.length > 1)
         .sort(compareGroupsByTextAreaAverageSize);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
