@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.0
+
+* Support open link in new tab.
+
 ### 0.0.9
 
 * Change extension load timing to after Vimium loaded.
