@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.1
+
+* Fix bug.
+
 ### 0.1.0
 
 * Support open link in new tab.

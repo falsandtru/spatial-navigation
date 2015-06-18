@@ -6,12 +6,12 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement) => any
   
   const scrollTop = window.scrollY,
         scrollLeft = window.scrollX;
-  const keys = 'fdsaewgvcxliohnm'.split(''),
+  const keys = 'efdsawgvcxliohnm'.split(''),
         markers = <HTMLElement[]>[],
         observer = document.createElement('input'),
         table = <{ [key: string]: HTMLElement }>{};
   observer.style.cssText = [
-    'position: absolute;',
+    'position: fixed;',
     'width: 0px;',
     'height: 0px;',
     'bottom: 0px;',
