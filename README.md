@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.0.9
+
+* Change extension load timing to after Vimium loaded.
+
 ### 0.0.8
 
 * Fix bug.

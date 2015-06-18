@@ -12,7 +12,7 @@
       "js": [
         "dist/raw/spatialnavigation.js"
       ],
-      "run_at": "document_start"
+      "run_at": "document_end"
     }
   ],
   "permissions": [
