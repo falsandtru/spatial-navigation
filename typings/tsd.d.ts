@@ -5,4 +5,3 @@
 /// <reference path="chrome/chrome-app.d.ts" />
 /// <reference path="filesystem/filesystem.d.ts" />
 /// <reference path="filewriter/filewriter.d.ts" />
-/// <reference path="jquery/jquery.d.ts" />
