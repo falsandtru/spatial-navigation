@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.2.1
+
+* Fix column selection.
+
 ### 0.2.0
 
 * Improve image link selection style.
