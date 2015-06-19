@@ -105,26 +105,30 @@ export function analyze(data: MODEL.Data) {
         .filter(isVisible);
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top))
+        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
+        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop, 0, Offset(cursor).left, winTop + winHeight))
+        .filter(isInRange(winTop, 0, Offset(cursor).left + margin, winTop + winHeight))
         .sort(compareCursorLeftDistance(cursor))
         .filter(isVisible);
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop, Offset(cursor).right, Infinity, winTop + winHeight))
+        .filter(isInRange(winTop, Offset(cursor).right - margin, Infinity, winTop + winHeight))
         .sort(compareCursorRightDistance(cursor))
         .filter(isVisible);
     }
