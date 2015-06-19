@@ -156,6 +156,7 @@ export function analyze(data: MODEL.Data) {
     function columns(targets: HTMLElement[]) {
       return targets
         .sort(compareLeftDistance)
+        .reverse()
         .reduce(groupsByLeftDistance, [])
         .map(filterFewNodesGroup)
         .filter(group => group.length > 1)
