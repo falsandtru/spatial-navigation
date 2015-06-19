@@ -155,7 +155,7 @@ export function analyze(data: MODEL.Data) {
         .reduce(groupsByLeftDistance, [])
         .map(filterFewNodesGroup)
         .filter(group => group.length > 1)
-        .sort(compareGroupsByTextAverageSize);
+        .sort(compareGroupsByTextAverageWeight);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
       if (groups.length === 0) { return [[elem]]; }
@@ -166,19 +166,33 @@ export function analyze(data: MODEL.Data) {
         return Math.floor(group[0].getBoundingClientRect().left) === Math.floor(elem.getBoundingClientRect().left);
       }
     }
-    function compareGroupsByTextAverageSize(a: HTMLElement[], b: HTMLElement[]) {
-      return calTextAverageSize(a.slice(0, 30)) - calTextAverageSize(b.slice(0, 30));
+    function compareGroupsByTextAverageWeight(a: HTMLElement[], b: HTMLElement[]) {
+      return calTextAverageWeight(a.slice(0, 30)) - calTextAverageWeight(b.slice(0, 30));
 
-      function calTextAverageSize(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextSize(elem), 0) / elems.length * (Math.min(elems.length, 6) / 5 + 0.5);
+      function calTextAverageWeight(elems: HTMLElement[]) {
+        return elems.reduce((r, elem) => r + calTextWeight(elem), 0) / elems.length * (Math.min(elems.length, 6) / 5 + 0.5);
       }
-      function calTextSize(elem: HTMLElement) {
-        const invalidTextSize = 3;
-        return (
-             parseInt(window.getComputedStyle(elem).fontSize, 10)
-          || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
-          || 16
-        ) * (elem.textContent.trim().length > invalidTextSize ? 1 : 0.5);
+      function calTextWeight(elem: HTMLElement) {
+        const validMinSize = 4,
+              weight = parseInt(window.getComputedStyle(elem).fontSize, 10)
+                    || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
+                    || 16,
+              hasFullTextNodes = findTextNodes(elem)
+                .filter(elem => elem.textContent.trim().length > 0)
+                .map(elem => elem.parentElement),
+              size = hasFullTextNodes
+                .filter(elem => elem.offsetWidth > 9 && elem.offsetHeight > 9)
+                .reduce((r, elem) => r + elem.textContent.trim().length, 0),
+              rate = size >= validMinSize ? 1 : 0.5;
+        return weight * rate;
+      }
+      function findTextNodes(elem: Element): Element[] {
+        return (<Element[]>Array.apply(null, elem.childNodes))
+          .map(elem => isTextNode(elem) ? [elem] : findTextNodes(elem))
+          .reduce((r, elems) => r.concat(elems), []);
+      }
+      function isTextNode(elem: Element) {
+        return elem.nodeName === '#text';
       }
     }
     function filterFewNodesGroup(group: HTMLElement[]) {
