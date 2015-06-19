@@ -5,6 +5,7 @@
 ### 0.2.8
 
 * Improve directional navigation.
+* Improve column selection.
 
 ### 0.2.7
 
