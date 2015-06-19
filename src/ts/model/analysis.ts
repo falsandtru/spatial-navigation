@@ -173,9 +173,11 @@ export function analyze(data: MODEL.Data) {
         return elems.reduce((r, elem) => r + calTextSize(elem), 0) / elems.length * (Math.min(elems.length, 5) / 5 + 0.5);
       }
       function calTextSize(elem: HTMLElement) {
-        return parseInt(window.getComputedStyle(elem).fontSize, 10)
-            || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
-            || 16;
+        return (
+             parseInt(window.getComputedStyle(elem).fontSize, 10)
+          || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
+          || 16
+        ) * Math.min(elem.textContent.trim().length, 1);
       }
     }
     function filterFewNodesGroup(group: HTMLElement[]) {
