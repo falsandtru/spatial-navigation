@@ -106,13 +106,13 @@ export function analyze(data: MODEL.Data) {
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(Math.max(-winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top))
+        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, Math.max(winHeight * 3, 3000)))
+        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight + 3000)))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
