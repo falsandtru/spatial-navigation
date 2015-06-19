@@ -126,9 +126,9 @@ export class View {
         elem.classList.add(ATTRIBUTE.CURSOR_ID);
       }
       function unselect() {
-        const marker = document.querySelector('.' + ATTRIBUTE.CURSOR_ID);
-        if (!marker) { return; }
-        marker.classList.remove(ATTRIBUTE.CURSOR_ID);
+        const selector = document.querySelector('.' + ATTRIBUTE.CURSOR_ID);
+        if (!selector) { return; }
+        selector.classList.remove(ATTRIBUTE.CURSOR_ID);
         undisplayUrl();
       }
       function trigger(cursor: HTMLElement, shiftKey: boolean) {

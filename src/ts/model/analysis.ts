@@ -105,26 +105,30 @@ export function analyze(data: MODEL.Data) {
         .filter(isVisible);
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top))
+        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
+        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop, 0, Offset(cursor).left, winTop + winHeight))
+        .filter(isInRange(winTop, 0, Offset(cursor).left + margin, winTop + winHeight))
         .sort(compareCursorLeftDistance(cursor))
         .filter(isVisible);
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
+      const margin = 3;
       return targets
-        .filter(isInRange(winTop, Offset(cursor).right, Infinity, winTop + winHeight))
+        .filter(isInRange(winTop, Offset(cursor).right - margin, Infinity, winTop + winHeight))
         .sort(compareCursorRightDistance(cursor))
         .filter(isVisible);
     }
@@ -173,18 +177,18 @@ export function analyze(data: MODEL.Data) {
         return elems.reduce((r, elem) => r + calTextWeight(elem), 0) / elems.length * (Math.min(elems.length, 6) / 5 + 0.5);
       }
       function calTextWeight(elem: HTMLElement) {
-        const validMinSize = 4,
-              weight = parseInt(window.getComputedStyle(elem).fontSize, 10)
-                    || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
-                    || 16,
-              hasFullTextNodes = findTextNodes(elem)
+        const fontSize = parseInt(window.getComputedStyle(elem).fontSize, 10)
+                      || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
+                      || 16,
+              fullTextNodeParents = findTextNodes(elem)
                 .filter(elem => elem.textContent.trim().length > 0)
-                .map(elem => elem.parentElement),
-              size = hasFullTextNodes
+                .map(elem => elem.parentElement)
+                .filter(isVisible),
+              size = fullTextNodeParents
                 .filter(elem => elem.offsetWidth > 9 && elem.offsetHeight > 9)
                 .reduce((r, elem) => r + elem.textContent.trim().length, 0),
-              rate = size >= validMinSize ? 1 : 0.5;
-        return weight * rate;
+              fontWeightAverage = calFontWeightRateAverage(fullTextNodeParents);
+        return fontSize * fontWeightAverage * Math.min(size, 1);
       }
       function findTextNodes(elem: Element): Element[] {
         return (<Element[]>Array.apply(null, elem.childNodes))
@@ -193,6 +197,26 @@ export function analyze(data: MODEL.Data) {
       }
       function isTextNode(elem: Element) {
         return elem.nodeName === '#text';
+      }
+      function calFontWeightRateAverage(textNodeParents: HTMLElement[]) {
+        const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.length * calFontWeightRate(elem), 0),
+              len = textNodeParents.reduce((r, elem) => r + elem.textContent.length, 0);
+        return len === 0 ? 0 : sum / len;
+      }
+      function calFontWeightRate(elem: HTMLElement) {
+        const fontWeight = window.getComputedStyle(elem).fontWeight;
+        var weight: number;
+        switch (fontWeight) {
+          case 'normal':
+            weight = 400;
+            break;
+          case 'bold':
+            weight = 700;
+            break;
+          default:
+            weight = parseInt(fontWeight, 10);
+        }
+        return 1 + ((weight / 400 - 1) / 3);
       }
     }
     function filterFewNodesGroup(group: HTMLElement[]) {
