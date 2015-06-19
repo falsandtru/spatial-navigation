@@ -101,14 +101,7 @@ export class View {
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
-          MAP.map(targets, (target, shiftKey) => {
-            if (target.tagName.toLowerCase() === 'a'
-              || target.onclick
-              || -1 < ['link', 'button'].indexOf(target.getAttribute('role'))) {
-              select(target);
-            }
-            trigger(target, shiftKey);
-          });
+          MAP.map(targets, trigger);
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:
@@ -140,6 +133,16 @@ export class View {
       }
       function trigger(cursor: HTMLElement, shiftKey: boolean) {
         if (!cursor) { return; }
+        if (cursor.tagName.toLowerCase() === 'a'
+          || cursor.parentElement.tagName.toLowerCase() === 'a'
+          || cursor.onclick
+          || -1 < ['button'].indexOf(cursor.getAttribute('role'))
+        ) {
+          select(cursor);
+        }
+        else {
+          unselect();
+        }
         cursor.focus();
         click(cursor, shiftKey);
       }
