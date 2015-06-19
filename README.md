@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.1.9
+
+* Fix bug.
+
 ### 0.1.8
 
 * Improve navigation.
