@@ -159,7 +159,7 @@ export function analyze(data: MODEL.Data) {
         .reduce(groupsByLeftDistance, [])
         .map(filterFewNodesGroup)
         .filter(group => group.length > 1)
-        .sort(compareGroupsByTextAverageWeight);
+        .sort(compareGroupsByTextWeightAverage);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
       if (groups.length === 0) { return [[elem]]; }
@@ -170,11 +170,16 @@ export function analyze(data: MODEL.Data) {
         return Math.floor(group[0].getBoundingClientRect().left) === Math.floor(elem.getBoundingClientRect().left);
       }
     }
-    function compareGroupsByTextAverageWeight(a: HTMLElement[], b: HTMLElement[]) {
-      return calTextAverageWeight(a.slice(0, 30)) - calTextAverageWeight(b.slice(0, 30));
+    function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
+      return calWeightAverage(a.slice(0, 30)) - calWeightAverage(b.slice(0, 30));
 
-      function calTextAverageWeight(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextWeight(elem), 0) / elems.length * (Math.min(elems.length, 6) / 5 + 0.5);
+      function calWeightAverage(elems: HTMLElement[]) {
+        return calTextWeightAverage(elems);
+      }
+      function calTextWeightAverage(elems: HTMLElement[]) {
+        return elems.length === 0
+          ? 0
+          : elems.reduce((r, elem) => r + calTextWeight(elem), 0) / elems.length * (Math.min(elems.length, 10) / 10 + 0.5);
       }
       function calTextWeight(elem: HTMLElement) {
         const fontSize = parseInt(window.getComputedStyle(elem).fontSize, 10)
@@ -184,11 +189,10 @@ export function analyze(data: MODEL.Data) {
                 .filter(elem => elem.textContent.trim().length > 0)
                 .map(elem => elem.parentElement)
                 .filter(isVisible),
-              size = fullTextNodeParents
-                .filter(elem => elem.offsetWidth > 9 && elem.offsetHeight > 9)
-                .reduce((r, elem) => r + elem.textContent.trim().length, 0),
-              fontWeightAverage = calFontWeightRateAverage(fullTextNodeParents);
-        return fontSize * fontWeightAverage * Math.min(size, 1);
+              fontWeightAverage = calFontWeightRateAverage(fullTextNodeParents),
+              length = fullTextNodeParents
+                .reduce((r, elem) => r + elem.textContent.trim().length, 0);
+        return fontSize * fontWeightAverage * +(length > 3);
       }
       function findTextNodes(elem: Element): Element[] {
         return (<Element[]>Array.apply(null, elem.childNodes))
@@ -199,8 +203,8 @@ export function analyze(data: MODEL.Data) {
         return elem.nodeName === '#text';
       }
       function calFontWeightRateAverage(textNodeParents: HTMLElement[]) {
-        const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.length * calFontWeightRate(elem), 0),
-              len = textNodeParents.reduce((r, elem) => r + elem.textContent.length, 0);
+        const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length * calFontWeightRate(elem), 0),
+              len = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length, 0);
         return len === 0 ? 0 : sum / len;
       }
       function calFontWeightRate(elem: HTMLElement) {
@@ -323,11 +327,14 @@ export function analyze(data: MODEL.Data) {
             point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
                                                            Math.floor(rect.top + (rect.bottom - rect.top) / 2));
       return point
-        ? point === elem || isChild(elem, point) || point === elem.parentElement
-        : isVisibleStyle(elem);
+        ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
+        : isVisibleSize(elem) && isVisibleStyle(elem);
 
       function isChild(parent: HTMLElement, child: HTMLElement) {
         return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
+      }
+      function isVisibleSize(elem: HTMLElement) {
+        return elem.offsetWidth > 9 && elem.offsetHeight > 9;
       }
       function isVisibleStyle(elem: HTMLElement) {
         const style = window.getComputedStyle(elem);
