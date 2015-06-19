@@ -2,9 +2,7 @@
 import ATTRIBUTE = require('../attribute/attribute');
 import MODEL = require('./model');
 
-import $ = require('jquery');
-
-const QUERY = [
+const SELECTOR = [
   'a',
   'input',
   'select',
@@ -14,22 +12,22 @@ const QUERY = [
   'video',
   'embed',
   '[onclick]',
-  '[role="link"]',
+  '[tabindex]',
+  //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
   '[role="tab"]',
   '[role="menuitem"]'
 ]
-.map(v => v + ':visible')
 .join(',');
 
 export function analyze(data: MODEL.Data) {
-  const winWidth = $(window).width(),
-        winHeight = $(window).height(),
-        winTop = $(window).scrollTop(),
-        winLeft = $(window).scrollLeft();
-  const targets = $(QUERY).get().filter((elem: HTMLElement) => $(elem).width() > 9
-                                                            && $(elem).height() > 9);
+  const winWidth = window.innerWidth,
+        winHeight = window.innerHeight,
+        winTop = window.scrollY,
+        winLeft = window.scrollX;
+  const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
+    .filter((elem: HTMLElement) => Offset(elem).width > 9 && Offset(elem).height > 9);
   return {
     entity: data.entity,
     attribute: data.attribute,
@@ -88,7 +86,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
-        .reduce((r, group) => calOffset(group[0]).left < calOffset(mainColumn[0]).left ? group : r, mainColumn)
+        .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
     }
     function findRightColumn(targets: HTMLElement[]) {
@@ -97,7 +95,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow).filter(isVisible))
         .filter(group => group.length > 0)
-        .reduce((r, group) => calOffset(group[0]).left > calOffset(mainColumn[0]).left ? group : r, mainColumn)
+        .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
     }
     function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
@@ -108,25 +106,25 @@ export function analyze(data: MODEL.Data) {
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(0, 0, Infinity, calOffset(cursor).top))
+        .filter(isInRange(Math.max(-winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(calOffset(cursor).bottom, 0, Infinity, Infinity))
+        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, Math.max(winHeight * 3, 3000)))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(winTop, 0, calOffset(cursor).left, winTop + winHeight))
+        .filter(isInRange(winTop, 0, Offset(cursor).left, winTop + winHeight))
         .sort(compareCursorLeftDistance(cursor))
         .filter(isVisible);
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(winTop, calOffset(cursor).right, Infinity, winTop + winHeight))
+        .filter(isInRange(winTop, Offset(cursor).right, Infinity, winTop + winHeight))
         .sort(compareCursorRightDistance(cursor))
         .filter(isVisible);
     }
@@ -146,7 +144,7 @@ export function analyze(data: MODEL.Data) {
     }
     function isInRange(top: number, left: number, right: number, bottom: number) {
       return function (elem: HTMLElement): boolean {
-        const offset = calOffset(elem);
+        const offset = Offset(elem);
         return top <= offset.top && offset.bottom <= bottom
             && left <= offset.left && offset.right <= right;
       };
@@ -157,7 +155,7 @@ export function analyze(data: MODEL.Data) {
         .reduce(groupsByLeftDistance, [])
         .map(filterFewNodesGroup)
         .filter(group => group.length > 1)
-        .sort(compareGroupsByTextAreaAverageSize);
+        .sort(compareGroupsByTextAverageSize);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
       if (groups.length === 0) { return [[elem]]; }
@@ -168,14 +166,14 @@ export function analyze(data: MODEL.Data) {
         return Math.floor(group[0].getBoundingClientRect().left) === Math.floor(elem.getBoundingClientRect().left);
       }
     }
-    function compareGroupsByTextAreaAverageSize(a: HTMLElement[], b: HTMLElement[]) {
-      return calTextAreaAverageSize(a) - calTextAreaAverageSize(b);
+    function compareGroupsByTextAverageSize(a: HTMLElement[], b: HTMLElement[]) {
+      return calTextAverageSize(a.slice(0, 30)) - calTextAverageSize(b.slice(0, 30));
 
-      function calTextAreaAverageSize(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextAreaSize(elem), 0) / elems.length * (Math.min(elems.length, 5) / 5 + 0.5);
+      function calTextAverageSize(elems: HTMLElement[]) {
+        return elems.reduce((r, elem) => r + calTextSize(elem), 0) / elems.length * (Math.min(elems.length, 5) / 5 + 0.5);
       }
-      function calTextAreaSize(elem: HTMLElement) {
-        return elem.offsetWidth * elem.offsetHeight;
+      function calTextSize(elem: HTMLElement) {
+        return parseInt(window.getComputedStyle(elem).lineHeight, 10);
       }
     }
     function filterFewNodesGroup(group: HTMLElement[]) {
@@ -218,80 +216,91 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareCursorDistance(cursor: HTMLElement) {
-      const cursoroffset = calOffset(cursor);
+      const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
       };
 
       function distance(elem: HTMLElement) {
-        const offset = calOffset(elem);
+        const targetOffset = Offset(elem);
         return Math.floor(
-          Math.abs(offset.left - cursoroffset.left)
-        + Math.abs(offset.top - cursoroffset.top) * 3
+          Math.abs(targetOffset.left - cursorOffset.left)
+        + Math.abs(targetOffset.top - cursorOffset.top) * 3
         );
       }
     }
     function compareCursorVerticalDistance(cursor: HTMLElement) {
-      const cursoroffset = calOffset(cursor);
+      const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
       };
 
       function distance(elem: HTMLElement) {
-        const offset = calOffset(elem);
+        const targetOffset = Offset(elem);
         return Math.floor(
-          Math.abs(offset.left - cursoroffset.left) * 3
-        + Math.abs(offset.top - cursoroffset.top)
+          Math.abs(targetOffset.left - cursorOffset.left) * 3
+        + Math.abs(targetOffset.top - cursorOffset.top)
         );
       }
     }
     function compareCursorLeftDistance(cursor: HTMLElement) {
-      const cursoroffset = calOffset(cursor);
+      const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
       };
 
       function distance(elem: HTMLElement) {
-        const offset = calOffset(elem);
+        const targetOffset = Offset(elem);
         return Math.floor(
-          Math.abs(offset.right - cursoroffset.left)
-        + Math.abs(offset.top - cursoroffset.top) * 5
+          Math.abs(targetOffset.right - cursorOffset.left)
+        + Math.abs(targetOffset.top - cursorOffset.top) * 5
         );
       }
     }
     function compareCursorRightDistance(cursor: HTMLElement) {
-      const cursoroffset = calOffset(cursor);
+      const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
       };
 
       function distance(elem: HTMLElement) {
-        const offset = calOffset(elem);
+        const targetOffset = Offset(elem);
         return Math.floor(
-          Math.abs(offset.left - cursoroffset.right)
-        + Math.abs(offset.top - cursoroffset.top) * 5
+          Math.abs(targetOffset.left - cursorOffset.right)
+        + Math.abs(targetOffset.top - cursorOffset.top) * 5
         );
       }
-    }
-    function calOffset(elem: HTMLElement) {
-      const offset = elem.getBoundingClientRect();
-      return {
-        top: winTop + offset.top,
-        left: winLeft + offset.left,
-        right: winLeft + offset.right,
-        bottom: winTop + offset.bottom
-      };
     }
     function isVisible(elem: HTMLElement) {
       const rect = elem.getBoundingClientRect(),
             point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
                                                            Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-      // 画面外は検査できないので無条件でパス
-      return !isInWindow(elem) || point === elem || isChild(elem, point) || point === elem.parentElement;
+      return point
+        ? point === elem || isChild(elem, point) || point === elem.parentElement
+        : isVisibleStyle(elem);
 
       function isChild(parent: HTMLElement, child: HTMLElement) {
         return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
       }
+      function isVisibleStyle(elem: HTMLElement) {
+        const style = window.getComputedStyle(elem);
+        return (
+          style.display.split(' ')[0] !== 'none' ||
+          style.visibility.split(' ')[0] !== 'hidden' ||
+          !(parseInt(style.zIndex.split(' ')[0], 10) < 0)
+        );
+      }
     }
+  }
+  function Offset(elem: HTMLElement) {
+    const offset = elem.getBoundingClientRect();
+    return {
+      top: winTop + offset.top,
+      left: winLeft + offset.left,
+      right: winLeft + offset.right,
+      bottom: winTop + offset.bottom,
+      width: offset.right - offset.left,
+      height: offset.bottom - offset.top
+    };
   }
 }
