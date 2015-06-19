@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.2.0
+
+* Improve image link selection style.
+
 ### 0.1.9
 
 * Fix bug.
