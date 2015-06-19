@@ -112,7 +112,7 @@ export function analyze(data: MODEL.Data) {
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
-        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight + 3000)))
+        .filter(isInRange(Offset(cursor).bottom, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
         .sort(compareCursorVerticalDistance(cursor))
         .filter(isVisible);
     }
@@ -170,7 +170,7 @@ export function analyze(data: MODEL.Data) {
       return calTextAverageSize(a.slice(0, 30)) - calTextAverageSize(b.slice(0, 30));
 
       function calTextAverageSize(elems: HTMLElement[]) {
-        return elems.reduce((r, elem) => r + calTextSize(elem), 0) / elems.length * (Math.min(elems.length, 5) / 5 + 0.5);
+        return elems.reduce((r, elem) => r + calTextSize(elem), 0) / elems.length * (Math.min(elems.length, 6) / 5 + 0.5);
       }
       function calTextSize(elem: HTMLElement) {
         return (
@@ -220,6 +220,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareCursorDistance(cursor: HTMLElement) {
+      const weight = 3;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
@@ -229,11 +230,12 @@ export function analyze(data: MODEL.Data) {
         const targetOffset = Offset(elem);
         return Math.floor(
           Math.abs(targetOffset.left - cursorOffset.left)
-        + Math.abs(targetOffset.top - cursorOffset.top) * 3
+        + Math.abs(targetOffset.top - cursorOffset.top) * weight
         );
       }
     }
     function compareCursorVerticalDistance(cursor: HTMLElement) {
+      const weight = 3;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
@@ -242,12 +244,13 @@ export function analyze(data: MODEL.Data) {
       function distance(elem: HTMLElement) {
         const targetOffset = Offset(elem);
         return Math.floor(
-          Math.abs(targetOffset.left - cursorOffset.left) * 3
+          Math.abs(targetOffset.left - cursorOffset.left) * weight
         + Math.abs(targetOffset.top - cursorOffset.top)
         );
       }
     }
     function compareCursorLeftDistance(cursor: HTMLElement) {
+      const weight = 5;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
@@ -257,11 +260,12 @@ export function analyze(data: MODEL.Data) {
         const targetOffset = Offset(elem);
         return Math.floor(
           Math.abs(targetOffset.right - cursorOffset.left)
-        + Math.abs(targetOffset.top - cursorOffset.top) * 5
+        + Math.abs(targetOffset.top - cursorOffset.top) * weight
         );
       }
     }
     function compareCursorRightDistance(cursor: HTMLElement) {
+      const weight = 5;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
@@ -271,7 +275,7 @@ export function analyze(data: MODEL.Data) {
         const targetOffset = Offset(elem);
         return Math.floor(
           Math.abs(targetOffset.left - cursorOffset.right)
-        + Math.abs(targetOffset.top - cursorOffset.top) * 5
+        + Math.abs(targetOffset.top - cursorOffset.top) * weight
         );
       }
     }
