@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.3.0
+
+* Improve navigation target detection.
+
 ### 0.2.9
 
 * Improve column selection.

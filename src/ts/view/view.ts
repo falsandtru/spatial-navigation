@@ -118,9 +118,6 @@ export class View {
       return;
 
       function select(elem: HTMLElement) {
-        if (elem.querySelector('img') && elem.textContent.trim() === '') {
-          return select(<HTMLElement>elem.querySelector('img'));
-        }
         unselect();
         displayUrl(elem);
         elem.classList.add(ATTRIBUTE.CURSOR_ID);

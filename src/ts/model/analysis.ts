@@ -27,6 +27,7 @@ export function analyze(data: MODEL.Data) {
         winTop = window.scrollY,
         winLeft = window.scrollX;
   const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
+    .map(shiftVisibleImg)
     .filter(isVisible);
   return {
     entity: data.entity,
@@ -317,6 +318,13 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
+  }
+  function shiftVisibleImg(elem: HTMLElement) {
+    return isVisible(elem)
+      ? elem
+      : (<HTMLElement[]>Array.apply(null, elem.querySelectorAll('img')))
+          .filter(isVisible)
+          [0] || elem;
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
