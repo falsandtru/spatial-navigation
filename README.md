@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.2.9
+
+* Improve column selection.
+
 ### 0.2.8
 
 * Improve directional navigation.
