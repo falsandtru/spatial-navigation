@@ -16,6 +16,7 @@ const SELECTOR = [
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
+  '[role="option"]',
   '[role="tab"]',
   '[role="menuitem"]'
 ]
