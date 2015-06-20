@@ -5,6 +5,7 @@
 ### 0.3.0
 
 * Improve navigation target detection.
+* Improve column selection.
 
 ### 0.2.9
 

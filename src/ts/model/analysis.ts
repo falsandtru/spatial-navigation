@@ -73,7 +73,7 @@ export function analyze(data: MODEL.Data) {
         .sort(compareLeftTopDistance);
     }
     function findMainColumn(targets: HTMLElement[]) {
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
@@ -82,7 +82,7 @@ export function analyze(data: MODEL.Data) {
     }
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
@@ -91,7 +91,7 @@ export function analyze(data: MODEL.Data) {
     }
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
@@ -167,7 +167,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
-      return calWeightAverage(a.slice(0, 30)) - calWeightAverage(b.slice(0, 30));
+      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30));
 
       function calWeightAverage(elems: HTMLElement[]) {
         return calTextWeightAverage(elems);
@@ -181,22 +181,12 @@ export function analyze(data: MODEL.Data) {
         const fontSize = parseInt(window.getComputedStyle(elem).fontSize, 10)
                       || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
                       || 16,
-              fullTextNodeParents = findTextNodes(elem)
-                .filter(elem => elem.textContent.trim().length > 0)
-                .map(elem => elem.parentElement)
-                .filter(isVisible),
+              fullTextNodeParents = findVisibleTextNodes(elem)
+                .map(text => text.parentElement),
               fontWeightAverage = calFontWeightRateAverage(fullTextNodeParents),
               length = fullTextNodeParents
                 .reduce((r, elem) => r + elem.textContent.trim().length, 0);
         return fontSize * fontWeightAverage * +(length > 3);
-      }
-      function findTextNodes(elem: Element): Element[] {
-        return (<Element[]>Array.apply(null, elem.childNodes))
-          .map(elem => isTextNode(elem) ? [elem] : findTextNodes(elem))
-          .reduce((r, elems) => r.concat(elems), []);
-      }
-      function isTextNode(elem: Element) {
-        return elem.nodeName === '#text';
       }
       function calFontWeightRateAverage(textNodeParents: HTMLElement[]) {
         const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length * calFontWeightRate(elem), 0),
@@ -318,6 +308,25 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
+  }
+  function hasVisibleTextNode(elem: HTMLElement) {
+    return findVisibleTextNodes(elem).length > 0;
+  }
+  function findVisibleTextNodes(elem: HTMLElement) {
+    return findTextNodes(elem)
+      .filter(hasText)
+      .filter(text => isVisible(text.parentElement));
+  }
+  function findTextNodes(elem: Element): Element[] {
+    return (<Element[]>Array.apply(null, elem.childNodes))
+      .map(elem => isTextNode(elem) ? [elem] : findTextNodes(elem))
+      .reduce((r, elems) => r.concat(elems), []);
+  }
+  function isTextNode(elem: Element) {
+    return elem.nodeName === '#text';
+  }
+  function hasText(elem: HTMLElement) {
+    return elem.textContent.trim().length > 0;
   }
   function shiftVisibleImg(elem: HTMLElement) {
     return isVisible(elem)
