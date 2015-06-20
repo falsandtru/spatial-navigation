@@ -16,6 +16,7 @@ const SELECTOR = [
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
+  '[role="option"]',
   '[role="tab"]',
   '[role="menuitem"]'
 ]
@@ -27,7 +28,7 @@ export function analyze(data: MODEL.Data) {
         winTop = window.scrollY,
         winLeft = window.scrollX;
   const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
-    .filter((elem: HTMLElement) => Offset(elem).width > 9 && Offset(elem).height > 9);
+    .filter(target => isVisible(shiftVisibleImg(target)));
   return {
     entity: data.entity,
     attribute: data.attribute,
@@ -69,68 +70,71 @@ export function analyze(data: MODEL.Data) {
     function findLeftTops(targets: HTMLElement[]) {
       return targets
         .filter(isInWindow)
-        .sort(compareLeftTopDistance)
-        .filter(isVisible);
+        .map(shiftVisibleImg)
+        .sort(compareLeftTopDistance);
     }
     function findMainColumn(targets: HTMLElement[]) {
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((_, group) => group, findLeftTops(targets))
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
     }
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
     }
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets)
+      return columns(targets.filter(hasVisibleTextNode))
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
-    }
-    function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
-      return targets
-        .filter(isInWindow)
-        .sort(compareCursorDistance(cursor))
-        .filter(isVisible);
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
-        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
-        .sort(compareCursorVerticalDistance(cursor))
-        .filter(isVisible);
+        .map(shiftVisibleImg)
+        .filter(isInRange(Math.max(winTop - (winHeight * 3), 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
+        .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
-        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
-        .sort(compareCursorVerticalDistance(cursor))
-        .filter(isVisible);
+        .map(shiftVisibleImg)
+        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + (winHeight * 4)))
+        .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
+        .map(shiftVisibleImg)
         .filter(isInRange(winTop, 0, Offset(cursor).left + margin, winTop + winHeight))
-        .sort(compareCursorLeftDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorLeftDistance(cursor));
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
+        .map(shiftVisibleImg)
         .filter(isInRange(winTop, Offset(cursor).right - margin, Infinity, winTop + winHeight))
-        .sort(compareCursorRightDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorRightDistance(cursor));
+    }
+    function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .map(shiftVisibleImg)
+        .filter(isInWindow)
+        .sort(compareCursorDistance(cursor));
     }
 
     function isCursorActive(cursor: HTMLElement) {
@@ -172,7 +176,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
-      return calWeightAverage(a.slice(0, 30)) - calWeightAverage(b.slice(0, 30));
+      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30));
 
       function calWeightAverage(elems: HTMLElement[]) {
         return calTextWeightAverage(elems);
@@ -186,22 +190,12 @@ export function analyze(data: MODEL.Data) {
         const fontSize = parseInt(window.getComputedStyle(elem).fontSize, 10)
                       || parseInt(window.getComputedStyle(document.documentElement).fontSize, 10)
                       || 16,
-              fullTextNodeParents = findTextNodes(elem)
-                .filter(elem => elem.textContent.trim().length > 0)
-                .map(elem => elem.parentElement)
-                .filter(isVisible),
+              fullTextNodeParents = findVisibleTextNodes(elem)
+                .map(text => text.parentElement),
               fontWeightAverage = calFontWeightRateAverage(fullTextNodeParents),
               length = fullTextNodeParents
                 .reduce((r, elem) => r + elem.textContent.trim().length, 0);
         return fontSize * fontWeightAverage * +(length > 3);
-      }
-      function findTextNodes(elem: Element): Element[] {
-        return (<Element[]>Array.apply(null, elem.childNodes))
-          .map(elem => isTextNode(elem) ? [elem] : findTextNodes(elem))
-          .reduce((r, elems) => r.concat(elems), []);
-      }
-      function isTextNode(elem: Element) {
-        return elem.nodeName === '#text';
       }
       function calFontWeightRateAverage(textNodeParents: HTMLElement[]) {
         const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length * calFontWeightRate(elem), 0),
@@ -323,28 +317,52 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function isVisible(elem: HTMLElement) {
-      const rect = elem.getBoundingClientRect(),
-            point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
-                                                           Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-      return point
-        ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
-        : isVisibleSize(elem) && isVisibleStyle(elem);
+  }
+  function hasVisibleTextNode(elem: HTMLElement) {
+    return findVisibleTextNodes(elem).length > 0;
+  }
+  function findVisibleTextNodes(elem: HTMLElement) {
+    return findTextNodes(elem)
+      .filter(hasText)
+      .filter(text => isVisible(text.parentElement));
+  }
+  function findTextNodes(elem: Element): Element[] {
+    return (<Element[]>Array.apply(null, elem.childNodes))
+      .map(elem => isTextNode(elem) ? [elem] : findTextNodes(elem))
+      .reduce((r, elems) => r.concat(elems), []);
+  }
+  function isTextNode(elem: Element) {
+    return elem.nodeName === '#text';
+  }
+  function hasText(elem: HTMLElement) {
+    return elem.textContent.trim().length > 0;
+  }
+  function shiftVisibleImg(elem: HTMLElement) {
+    return (<HTMLElement[]>Array.apply(null, elem.querySelectorAll('img')))
+      .filter(isVisible)
+      .shift() || elem;
+  }
+  function isVisible(elem: HTMLElement) {
+    const rect = elem.getBoundingClientRect(),
+          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
+                                                         Math.floor(rect.top + (rect.bottom - rect.top) / 2));
+    return point
+      ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
+      : isVisibleSize(elem) && isVisibleStyle(elem);
 
-      function isChild(parent: HTMLElement, child: HTMLElement) {
-        return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
-      }
-      function isVisibleSize(elem: HTMLElement) {
-        return elem.offsetWidth > 9 && elem.offsetHeight > 9;
-      }
-      function isVisibleStyle(elem: HTMLElement) {
-        const style = window.getComputedStyle(elem);
-        return (
-          style.display.split(' ')[0] !== 'none' ||
-          style.visibility.split(' ')[0] !== 'hidden' ||
-          !(parseInt(style.zIndex.split(' ')[0], 10) < 0)
-        );
-      }
+    function isChild(parent: HTMLElement, child: HTMLElement) {
+      return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
+    }
+    function isVisibleSize(elem: HTMLElement) {
+      return elem.offsetWidth > 9 && elem.offsetHeight > 9;
+    }
+    function isVisibleStyle(elem: HTMLElement) {
+      const style = window.getComputedStyle(elem);
+      return (
+        style.display.split(' ')[0] !== 'none' ||
+        style.visibility.split(' ')[0] !== 'hidden' ||
+        !(parseInt(style.zIndex.split(' ')[0], 10) < 0)
+      );
     }
   }
   function Offset(elem: HTMLElement) {

@@ -6,8 +6,8 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   
   const scrollTop = window.scrollY,
         scrollLeft = window.scrollX;
-  const keys = 'efdsawgvcxliohnm'.split(''),
-        markers = <HTMLElement[]>[],
+  const keys = 'edsawgvcxliohnmzbptuy'.split(''),
+        container = document.createElement('div'),
         observer = document.createElement('input'),
         table = <{ [key: string]: HTMLElement }>{};
   observer.style.cssText = [
@@ -28,6 +28,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   document.body.appendChild(observer);
   observer.focus();
   setTimeout(() => observer.focus(), 1000);
+  document.body.appendChild(container);
   return targets.slice(0, keys.length)
     .map(target => {
       const marker = document.createElement('span'),
@@ -57,9 +58,8 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
       .map(str => str.split(';')[0] + ' !important;')
       .join('');
       marker.textContent = key;
-      markers.push(marker);
       table[key] = target;
-      document.body.appendChild(marker);
+      container.appendChild(marker);
       return target;
     });
 
@@ -73,7 +73,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
 
     observer.removeEventListener('keydown', handler);
     observer.removeEventListener('blur', handler);
-    markers.forEach((elem: HTMLElement) => elem.remove());
+    container.remove();
 
     if (key && target) {
       callback(target, shiftKey);
