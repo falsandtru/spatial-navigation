@@ -6,7 +6,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   
   const scrollTop = window.scrollY,
         scrollLeft = window.scrollX;
-  const keys = 'efdsawgvcxliohnm'.split(''),
+  const keys = 'edsawgvcxliohnmzbptuy'.split(''),
         container = document.createElement('div'),
         observer = document.createElement('input'),
         table = <{ [key: string]: HTMLElement }>{};
