@@ -27,7 +27,7 @@ export function analyze(data: MODEL.Data) {
         winTop = window.scrollY,
         winLeft = window.scrollX;
   const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
-    .filter((elem: HTMLElement) => Offset(elem).width > 9 && Offset(elem).height > 9);
+    .filter(isVisible);
   return {
     entity: data.entity,
     attribute: data.attribute,
@@ -69,13 +69,12 @@ export function analyze(data: MODEL.Data) {
     function findLeftTops(targets: HTMLElement[]) {
       return targets
         .filter(isInWindow)
-        .sort(compareLeftTopDistance)
-        .filter(isVisible);
+        .sort(compareLeftTopDistance);
     }
     function findMainColumn(targets: HTMLElement[]) {
       return columns(targets)
         .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((_, group) => group, findLeftTops(targets))
         .sort(compareLeftTopDistance);
@@ -84,7 +83,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
@@ -93,7 +92,7 @@ export function analyze(data: MODEL.Data) {
       const mainColumn = findMainColumn(targets);
       return columns(targets)
         .filter(group => group.length > 0)
-        .map(group => group.filter(isInWindow).filter(isVisible))
+        .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
         .sort(compareLeftTopDistance);
@@ -101,36 +100,31 @@ export function analyze(data: MODEL.Data) {
     function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
       return targets
         .filter(isInWindow)
-        .sort(compareCursorDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorDistance(cursor));
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
         .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
-        .sort(compareCursorVerticalDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
         .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
-        .sort(compareCursorVerticalDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
         .filter(isInRange(winTop, 0, Offset(cursor).left + margin, winTop + winHeight))
-        .sort(compareCursorLeftDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorLeftDistance(cursor));
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
         .filter(isInRange(winTop, Offset(cursor).right - margin, Infinity, winTop + winHeight))
-        .sort(compareCursorRightDistance(cursor))
-        .filter(isVisible);
+        .sort(compareCursorRightDistance(cursor));
     }
 
     function isCursorActive(cursor: HTMLElement) {
@@ -323,28 +317,28 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
-    function isVisible(elem: HTMLElement) {
-      const rect = elem.getBoundingClientRect(),
-            point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
-                                                           Math.floor(rect.top + (rect.bottom - rect.top) / 2));
-      return point
-        ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
-        : isVisibleSize(elem) && isVisibleStyle(elem);
+  }
+  function isVisible(elem: HTMLElement) {
+    const rect = elem.getBoundingClientRect(),
+          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
+                                                         Math.floor(rect.top + (rect.bottom - rect.top) / 2));
+    return point
+      ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
+      : isVisibleSize(elem) && isVisibleStyle(elem);
 
-      function isChild(parent: HTMLElement, child: HTMLElement) {
-        return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
-      }
-      function isVisibleSize(elem: HTMLElement) {
-        return elem.offsetWidth > 9 && elem.offsetHeight > 9;
-      }
-      function isVisibleStyle(elem: HTMLElement) {
-        const style = window.getComputedStyle(elem);
-        return (
-          style.display.split(' ')[0] !== 'none' ||
-          style.visibility.split(' ')[0] !== 'hidden' ||
-          !(parseInt(style.zIndex.split(' ')[0], 10) < 0)
-        );
-      }
+    function isChild(parent: HTMLElement, child: HTMLElement) {
+      return child ? child.parentElement === parent || isChild(parent, child.parentElement) : false;
+    }
+    function isVisibleSize(elem: HTMLElement) {
+      return elem.offsetWidth > 9 && elem.offsetHeight > 9;
+    }
+    function isVisibleStyle(elem: HTMLElement) {
+      const style = window.getComputedStyle(elem);
+      return (
+        style.display.split(' ')[0] !== 'none' ||
+        style.visibility.split(' ')[0] !== 'hidden' ||
+        !(parseInt(style.zIndex.split(' ')[0], 10) < 0)
+      );
     }
   }
   function Offset(elem: HTMLElement) {
