@@ -25,6 +25,9 @@ export class View {
       '  outline: 2px solid turquoise !important;',
       '  outline-offset: -1px !important;',
       '  background-color: rgba(255, 255, 0, 0.4) !important;',
+      '}',
+      'img.' + ATTRIBUTE.CURSOR_ID + ' {',
+      '  outline-offset: -2px !important;',
       '}'
     ].join('\n');
   }
