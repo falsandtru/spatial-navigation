@@ -27,8 +27,7 @@ export function analyze(data: MODEL.Data) {
         winTop = window.scrollY,
         winLeft = window.scrollX;
   const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
-    .map(shiftVisibleImg)
-    .filter(isVisible);
+    .filter(target => isVisible(shiftVisibleImg(target)));
   return {
     entity: data.entity,
     attribute: data.attribute,
@@ -70,6 +69,7 @@ export function analyze(data: MODEL.Data) {
     function findLeftTops(targets: HTMLElement[]) {
       return targets
         .filter(isInWindow)
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
     }
     function findMainColumn(targets: HTMLElement[]) {
@@ -78,6 +78,7 @@ export function analyze(data: MODEL.Data) {
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((_, group) => group, findLeftTops(targets))
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
     }
     function findLeftColumn(targets: HTMLElement[]) {
@@ -87,6 +88,7 @@ export function analyze(data: MODEL.Data) {
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
     }
     function findRightColumn(targets: HTMLElement[]) {
@@ -96,36 +98,42 @@ export function analyze(data: MODEL.Data) {
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .map(shiftVisibleImg)
         .sort(compareLeftTopDistance);
-    }
-    function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
-      return targets
-        .filter(isInWindow)
-        .sort(compareCursorDistance(cursor));
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
-        .filter(isInRange(winTop - Math.max(winHeight * 3, 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
+        .map(shiftVisibleImg)
+        .filter(isInRange(Math.max(winTop - (winHeight * 3), 0), winLeft, winLeft + winWidth, Offset(cursor).top + margin))
         .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorBottoms(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
-        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + Math.max(winHeight * 4, winHeight)))
+        .map(shiftVisibleImg)
+        .filter(isInRange(Offset(cursor).bottom - margin, winLeft, winLeft + winWidth, winTop + (winHeight * 4)))
         .sort(compareCursorVerticalDistance(cursor));
     }
     function findCursorLefts(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
+        .map(shiftVisibleImg)
         .filter(isInRange(winTop, 0, Offset(cursor).left + margin, winTop + winHeight))
         .sort(compareCursorLeftDistance(cursor));
     }
     function findCursorRights(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
       return targets
+        .map(shiftVisibleImg)
         .filter(isInRange(winTop, Offset(cursor).right - margin, Infinity, winTop + winHeight))
         .sort(compareCursorRightDistance(cursor));
+    }
+    function findCursorNeerTargets(targets: HTMLElement[], cursor: HTMLElement) {
+      return targets
+        .map(shiftVisibleImg)
+        .filter(isInWindow)
+        .sort(compareCursorDistance(cursor));
     }
 
     function isCursorActive(cursor: HTMLElement) {
@@ -329,11 +337,9 @@ export function analyze(data: MODEL.Data) {
     return elem.textContent.trim().length > 0;
   }
   function shiftVisibleImg(elem: HTMLElement) {
-    return isVisible(elem)
-      ? elem
-      : (<HTMLElement[]>Array.apply(null, elem.querySelectorAll('img')))
-          .filter(isVisible)
-          [0] || elem;
+    return (<HTMLElement[]>Array.apply(null, elem.querySelectorAll('img')))
+      .filter(isVisible)
+      .shift() || elem;
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
