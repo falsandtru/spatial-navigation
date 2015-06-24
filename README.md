@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.3.1
+
+* Improve directional navigation.
+
 ### 0.3.0
 
 * Improve navigation target detection.

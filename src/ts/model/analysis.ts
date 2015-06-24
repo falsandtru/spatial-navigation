@@ -278,9 +278,12 @@ export function analyze(data: MODEL.Data) {
       };
 
       function distance(elem: HTMLElement) {
-        const targetOffset = Offset(elem);
+        const targetOffset = Offset(elem),
+              hdistance = targetOffset.left <= cursorOffset.left && cursorOffset.left <= targetOffset.right
+                ? 0
+                : targetOffset.left - cursorOffset.left;
         return Math.floor(
-          Math.abs(targetOffset.left - cursorOffset.left) * weight
+          Math.abs(hdistance) * weight
         + Math.abs(targetOffset.top - cursorOffset.top)
         );
       }
