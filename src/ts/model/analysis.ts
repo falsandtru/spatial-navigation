@@ -85,7 +85,6 @@ export function analyze(data: MODEL.Data) {
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
       return columns(targets.filter(hasVisibleTextNode))
-        .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
@@ -95,7 +94,6 @@ export function analyze(data: MODEL.Data) {
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
       return columns(targets.filter(hasVisibleTextNode))
-        .filter(group => group.length > 0)
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
@@ -280,9 +278,12 @@ export function analyze(data: MODEL.Data) {
       };
 
       function distance(elem: HTMLElement) {
-        const targetOffset = Offset(elem);
+        const targetOffset = Offset(elem),
+              hdistance = targetOffset.left <= cursorOffset.left && cursorOffset.left <= targetOffset.right
+                ? 0
+                : targetOffset.left - cursorOffset.left;
         return Math.floor(
-          Math.abs(targetOffset.left - cursorOffset.left) * weight
+          Math.abs(hdistance) * weight
         + Math.abs(targetOffset.top - cursorOffset.top)
         );
       }
