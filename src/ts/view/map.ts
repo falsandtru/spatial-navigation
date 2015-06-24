@@ -28,8 +28,7 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   document.body.appendChild(observer);
   observer.focus();
   setTimeout(() => observer.focus(), 1000);
-  document.body.appendChild(container);
-  return targets.slice(0, keys.length)
+  const markers = targets.slice(0, keys.length)
     .map(target => {
       const marker = document.createElement('span'),
             key = keys.shift(),
@@ -62,6 +61,8 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
       container.appendChild(marker);
       return target;
     });
+  document.body.appendChild(container);
+  return markers;
 
   function handler(event: KeyboardEvent) {
     event.preventDefault();
