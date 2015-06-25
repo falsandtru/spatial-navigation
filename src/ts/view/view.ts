@@ -144,7 +144,7 @@ export class View {
           unselect();
         }
         cursor.focus();
-        click(cursor, shiftKey);
+        click(cursor, !shiftKey);
       }
     }
   }
