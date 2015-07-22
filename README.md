@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.3.3
+
+* Improve gmail support.
+
 ### 0.3.2
 
 * Change default link open mode.

@@ -63,6 +63,10 @@ export class View {
         case 'textarea':
           return true;
       }
+      switch (elem.getAttribute('role')) {
+        case 'textbox':
+          return true;
+      }
       return false;
     }
   }
