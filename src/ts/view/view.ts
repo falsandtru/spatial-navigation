@@ -48,7 +48,7 @@ export class View {
 
     if (attribute.command === ATTRIBUTE.COMMAND.INVALID) { return; }
     if (!cursor && attribute.command === ATTRIBUTE.COMMAND.ENTER) { return; }
-    if (!cursor && attribute.command === ATTRIBUTE.COMMAND.S_ENTER) { return; }
+    if (!cursor && attribute.command === ATTRIBUTE.COMMAND.ENTER_S) { return; }
 
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -98,7 +98,9 @@ export class View {
     function markTarget(targets: HTMLElement[]) {
       switch (command) {
         case ATTRIBUTE.COMMAND.UP:
+        case ATTRIBUTE.COMMAND.UP_S:
         case ATTRIBUTE.COMMAND.DOWN:
+        case ATTRIBUTE.COMMAND.DOWN_S:
         case ATTRIBUTE.COMMAND.LEFT:
         case ATTRIBUTE.COMMAND.RIGHT:
           const target = targets[0];
@@ -115,7 +117,7 @@ export class View {
           trigger(<HTMLElement>document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false);
           break;
 
-        case ATTRIBUTE.COMMAND.S_ENTER:
+        case ATTRIBUTE.COMMAND.ENTER_S:
           trigger(<HTMLElement>document.querySelector('.' + ATTRIBUTE.CURSOR_ID), true);
           break;
 
