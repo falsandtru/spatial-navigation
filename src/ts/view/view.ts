@@ -201,6 +201,10 @@ function undisplayUrl() {
 }
 
 function click(elem: HTMLElement, newtab: boolean) {
+  const target: boolean|string = elem.hasAttribute('target') && elem.getAttribute('target');
+  if (elem.tagName.toLowerCase() === 'a') {
+    elem.removeAttribute('target');
+  }
   ["mouseover", "mousedown", "mouseup", "click"]
     .forEach(sequence => {
       const mouseEvent: any = document.createEvent("MouseEvents");
@@ -215,4 +219,7 @@ function click(elem: HTMLElement, newtab: boolean) {
       );
       elem.dispatchEvent(mouseEvent);
     });
+  if (elem.tagName.toLowerCase() === 'a') {
+    typeof target === 'boolean' ? elem.removeAttribute('target') : elem.setAttribute('target', target);
+  }
 }

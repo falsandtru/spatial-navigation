@@ -6,6 +6,7 @@
 
 * Add directional column navigation feature.
 * Add directional navigation reverse mode.
+* Modify link open mode behavior.
 
 ### 0.3.3
 
