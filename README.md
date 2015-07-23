@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.3.5
+
+* Improve performance.
+
 ### 0.3.4
 
 * Add directional column navigation feature.
