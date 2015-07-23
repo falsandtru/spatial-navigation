@@ -2,6 +2,12 @@
 
 ## ChangeLog
 
+### 0.3.4
+
+* Add directional column navigation feature.
+* Add directional navigation reverse mode.
+* Modify link open mode behavior.
+
 ### 0.3.3
 
 * Improve gmail support.

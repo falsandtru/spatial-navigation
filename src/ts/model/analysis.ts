@@ -45,10 +45,20 @@ export function analyze(data: MODEL.Data) {
           ? findLeftTops(targets)
           : findCursorTops(targets, cursor);
 
+      case ATTRIBUTE.COMMAND.UP_S:
+        return !cursor
+          ? findLeftTops(targets)
+          : findCursorTops(findCursorColumn(targets, cursor), cursor);
+
       case ATTRIBUTE.COMMAND.DOWN:
         return !cursor
           ? findMainColumn(targets)
           : findCursorBottoms(targets, cursor);
+
+      case ATTRIBUTE.COMMAND.DOWN_S:
+        return !cursor
+          ? findMainColumn(targets)
+          : findCursorBottoms(findCursorColumn(targets, cursor), cursor);
 
       case ATTRIBUTE.COMMAND.LEFT:
         return !cursor
@@ -133,6 +143,17 @@ export function analyze(data: MODEL.Data) {
         .map(shiftVisibleImg)
         .filter(isInWindow)
         .sort(compareCursorDistance(cursor));
+    }
+    function findCursorColumn(targets: HTMLElement[], cursor: HTMLElement) {
+      const left = cursor.getBoundingClientRect().left;
+      return columns(targets.filter(isCursorColumn).filter(hasVisibleTextNode))
+        .reduce((_, group) => group, targets)
+        .map(shiftVisibleImg)
+        .sort(compareLeftTopDistance);
+
+      function isCursorColumn(elem: HTMLElement) {
+        return elem.getBoundingClientRect().left === left;
+      }
     }
 
     function isCursorActive(cursor: HTMLElement) {
