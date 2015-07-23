@@ -12,7 +12,7 @@ const SELECTOR = [
   'video',
   'embed',
   '[onclick]',
-  '[tabindex]',
+  '[tabindex]:not(#hdtb):not(#hdtbMenus)',
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
