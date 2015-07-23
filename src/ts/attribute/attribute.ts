@@ -20,7 +20,9 @@ const enum KEYMAP {
   s = 115,
   S = 83,
   a = 97,
+  A = 65,
   d = 100,
+  D = 68,
   e = 101,
   //E = 69,
   q = 113,
@@ -33,7 +35,9 @@ const enum CMDMAP {
   DOWN = KEYMAP.s,
   DOWN_S = KEYMAP.S,
   LEFT = KEYMAP.a,
+  LEFT_S = KEYMAP.A,
   RIGHT = KEYMAP.d,
+  RIGHT_S = KEYMAP.D,
   EXPAND = KEYMAP.e,
   //CONTRACT = KEYMAP.E,
   QUIT = KEYMAP.q,
@@ -77,8 +81,12 @@ export function key2command(event: KeyboardEvent): COMMAND {
       return COMMAND.DOWN_S;
     case CMDMAP.LEFT:
       return COMMAND.LEFT;
+    case CMDMAP.LEFT_S:
+      return COMMAND.RIGHT;
     case CMDMAP.RIGHT:
       return COMMAND.RIGHT;
+    case CMDMAP.RIGHT_S:
+      return COMMAND.LEFT;
     case CMDMAP.ENTER:
       return event.shiftKey ? COMMAND.ENTER_S : COMMAND.ENTER;
     default:

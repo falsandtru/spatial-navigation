@@ -5,6 +5,7 @@
 ### 0.3.4
 
 * Add directional column navigation feature.
+* Add directional navigation reverse mode.
 
 ### 0.3.3
 
