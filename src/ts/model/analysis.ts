@@ -22,18 +22,25 @@ const SELECTOR = [
 ]
 .join(',');
 
+var queried: HTMLElement[];
+
 export function analyze(data: MODEL.Data) {
+  queried = queried || (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
   const winWidth = window.innerWidth,
         winHeight = window.innerHeight,
         winTop = window.scrollY,
         winLeft = window.scrollX;
-  const targets = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)))
-    .filter(target => isVisible(shiftVisibleImg(target)));
+  const targets = findTargets(
+    queried.filter(target => isVisible(shiftVisibleImg(target))),
+    data.attribute.command,
+    data.attribute.cursor
+  );
+  queried = isInWindow(targets[0]) ? queried : null;
   return {
     entity: data.entity,
     attribute: data.attribute,
     result: {
-      targets: findTargets(targets, data.attribute.command, data.attribute.cursor)
+      targets: targets
     }
   };
 
@@ -165,16 +172,6 @@ export function analyze(data: MODEL.Data) {
         rect.right < 0 ||
         rect.left > winWidth
       );
-    }
-    function isInWindow(elem: HTMLElement): boolean {
-      return !!elem && isInRange(winTop, winLeft, winLeft + winWidth, winTop + winHeight)(elem);
-    }
-    function isInRange(top: number, left: number, right: number, bottom: number) {
-      return function (elem: HTMLElement): boolean {
-        const offset = Offset(elem);
-        return top <= offset.top && offset.bottom <= bottom
-            && left <= offset.left && offset.right <= right;
-      };
     }
     function columns(targets: HTMLElement[]) {
       return targets
@@ -339,6 +336,16 @@ export function analyze(data: MODEL.Data) {
         );
       }
     }
+  }
+  function isInWindow(elem: HTMLElement): boolean {
+    return !!elem && isInRange(winTop, winLeft, winLeft + winWidth, winTop + winHeight)(elem);
+  }
+  function isInRange(top: number, left: number, right: number, bottom: number) {
+    return function (elem: HTMLElement): boolean {
+      const offset = Offset(elem);
+      return top <= offset.top && offset.bottom <= bottom
+        && left <= offset.left && offset.right <= right;
+    };
   }
   function hasVisibleTextNode(elem: HTMLElement) {
     return findVisibleTextNodes(elem).length > 0;
