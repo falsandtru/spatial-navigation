@@ -159,6 +159,7 @@ export class View {
       }
       function trigger(cursor: HTMLElement, shiftKey: boolean) {
         if (!cursor) { return; }
+        if (!document.elementFromPoint(cursor.getBoundingClientRect().left, cursor.getBoundingClientRect().top)) { return; }
         if (cursor.tagName.toLowerCase() === 'a'
           || cursor.parentElement.tagName.toLowerCase() === 'a'
           || cursor.onclick
@@ -171,7 +172,7 @@ export class View {
           unselect();
         }
         cursor.focus();
-        click(cursor, !shiftKey && cursor.tagName.toLowerCase() === 'a' && (<HTMLAnchorElement>cursor).href[0] !== '#');
+        click(cursor, !shiftKey && !(cursor.tagName.toLowerCase() === 'a' && (<HTMLAnchorElement>cursor).href[0] === '#'));
       }
     }
   }
