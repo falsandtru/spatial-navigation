@@ -59,7 +59,23 @@ export class View {
     function isInserting(elem: Element) {
       switch (elem.tagName.toLowerCase()) {
         case 'input':
+          switch (elem.getAttribute('type')) {
+            case 'checkbox':
+            case 'radio':
+            case 'file':
+            case 'submit':
+            case 'reset':
+            case 'button':
+            case 'image':
+            case 'range':
+            case 'color':
+              return false;
+          }
+          return true;
         case 'select':
+          return false;
+        case 'datalist':
+        case 'option':
         case 'textarea':
           return true;
       }
@@ -146,6 +162,7 @@ export class View {
         if (cursor.tagName.toLowerCase() === 'a'
           || cursor.parentElement.tagName.toLowerCase() === 'a'
           || cursor.onclick
+          || cursor.tagName.toLowerCase() === 'option'
           || -1 < ['button'].indexOf(cursor.getAttribute('role'))
         ) {
           select(cursor);
