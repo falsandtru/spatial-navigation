@@ -285,7 +285,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareCursorDistance(cursor: HTMLElement) {
-      const weight = 3;
+      const weight = 10;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
