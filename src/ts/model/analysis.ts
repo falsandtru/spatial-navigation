@@ -27,11 +27,21 @@ const SELECTOR = [
 var queried: HTMLElement[];
 
 export function analyze(data: MODEL.Data) {
-  queried = queried || (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
   const winWidth = window.innerWidth,
         winHeight = window.innerHeight,
         winTop = window.scrollY,
         winLeft = window.scrollX;
+
+  switch (true) {
+    case data.attribute.command === ATTRIBUTE.COMMAND.EXPAND:
+    case data.attribute.command === ATTRIBUTE.COMMAND.CONTRACT:
+    case !data.attribute.cursor:
+    case !isInWindow(data.attribute.cursor):
+    case !isVisible(data.attribute.cursor):
+      queried = void 0;
+  }
+  queried = queried || (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
+
   const targets = findTargets(
     queried.filter(target => isVisible(shiftVisibleImg(target))),
     data.attribute.command,
