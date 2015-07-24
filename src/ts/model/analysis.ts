@@ -78,7 +78,13 @@ export function analyze(data: MODEL.Data) {
           : findCursorRights(targets, cursor);
 
       case ATTRIBUTE.COMMAND.EXPAND:
-        return findCursorNeerTargets(targets, cursor || findMainColumn(targets)[0] || document.body);
+        return findCursorNeerTargets(targets, cursor || findMainColumn(targets)[0] || document.body)
+          .filter(isInWindow);
+
+      case ATTRIBUTE.COMMAND.CONTRACT:
+        return findCursorNeerTargets(targets, cursor || findMainColumn(targets)[0] || document.body)
+          .filter(isInWindow)
+          .reverse();
 
       default:
         return [];

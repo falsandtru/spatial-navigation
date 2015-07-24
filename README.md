@@ -4,6 +4,7 @@
 
 ### 0.3.6
 
+* Improve content key map feature.
 * Improve directional navigation.
 * Improve url display feature.
 

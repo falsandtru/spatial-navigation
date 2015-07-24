@@ -110,7 +110,11 @@ export class View {
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
-          MAP.map(targets, trigger);
+          MAP.map(targets, trigger, false);
+          break;
+
+        case ATTRIBUTE.COMMAND.CONTRACT:
+          MAP.map(targets, trigger, true);
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:
