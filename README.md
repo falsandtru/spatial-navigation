@@ -5,6 +5,7 @@
 ### 0.3.9
 
 * Fix navigation target detection.
+* Fix link open mode behavior.
 
 ### 0.3.8
 
