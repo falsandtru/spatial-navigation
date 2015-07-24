@@ -2,6 +2,11 @@
 
 ## ChangeLog
 
+### 0.3.8
+
+* Modify navigation target detection.
+* Fix link open mode behavior.
+
 ### 0.3.7
 
 * Modify navigation target detection.

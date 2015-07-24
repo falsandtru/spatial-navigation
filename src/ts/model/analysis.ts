@@ -6,13 +6,15 @@ const SELECTOR = [
   'a',
   'input',
   'select',
+  'option',
+  'datalist',
   'textarea',
   'button',
   'audio',
   'video',
   'embed',
   '[onclick]',
-  '[tabindex]:not(#hdtb):not(#hdtbMenus)',
+  '[tabindex]:not([role="tablist"]):not(#hdtb):not(#hdtbMenus)',
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
@@ -354,8 +356,8 @@ export function analyze(data: MODEL.Data) {
   function isInRange(top: number, left: number, right: number, bottom: number) {
     return function (elem: HTMLElement): boolean {
       const offset = Offset(elem);
-      return top <= offset.top && offset.bottom <= bottom
-        && left <= offset.left && offset.right <= right;
+      return top <= offset.top && offset.top <= bottom - 10
+        && left <= offset.left && offset.left <= right - 10;
     };
   }
   function hasVisibleTextNode(elem: HTMLElement) {
