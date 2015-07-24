@@ -24,23 +24,19 @@ const SELECTOR = [
 ]
 .join(',');
 
-var queried: HTMLElement[];
+var queried: HTMLElement[],
+    linkcount = 0;
 
 export function analyze(data: MODEL.Data) {
+  if (!queried || linkcount !== document.links.length) {
+    queried = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
+    linkcount = document.links.length;
+  }
+
   const winWidth = window.innerWidth,
         winHeight = window.innerHeight,
         winTop = window.scrollY,
         winLeft = window.scrollX;
-
-  switch (true) {
-    case data.attribute.command === ATTRIBUTE.COMMAND.EXPAND:
-    case data.attribute.command === ATTRIBUTE.COMMAND.CONTRACT:
-    case !data.attribute.cursor:
-    case !isInWindow(data.attribute.cursor):
-    case !isVisible(data.attribute.cursor):
-      queried = void 0;
-  }
-  queried = queried || (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
 
   const targets = findTargets(
     queried.filter(target => isVisible(shiftVisibleImg(target))),
