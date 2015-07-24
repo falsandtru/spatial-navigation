@@ -28,7 +28,7 @@ var queried: HTMLElement[],
     linkcount = 0;
 
 export function analyze(data: MODEL.Data) {
-  if (!queried || linkcount !== document.links.length) {
+  if (!queried || !data.attribute.cursor || linkcount !== document.links.length) {
     queried = (<HTMLElement[]>Array.apply(null, document.querySelectorAll(SELECTOR)));
     linkcount = document.links.length;
   }
@@ -392,7 +392,7 @@ export function analyze(data: MODEL.Data) {
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
-          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left),
+          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left) + 10,
                                                          Math.floor(rect.top));
     return point
       ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
