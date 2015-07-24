@@ -110,7 +110,11 @@ export class View {
           break;
 
         case ATTRIBUTE.COMMAND.EXPAND:
-          MAP.map(targets, trigger);
+          MAP.map(targets, trigger, false);
+          break;
+
+        case ATTRIBUTE.COMMAND.CONTRACT:
+          MAP.map(targets, trigger, true);
           break;
 
         case ATTRIBUTE.COMMAND.ENTER:
@@ -172,7 +176,8 @@ export function emit(entity: ENTITY.EntityInterface, attribute: ATTRIBUTE.Attrib
 }
 
 function displayUrl(cursor: HTMLElement) {
-  if (cursor.tagName.toLowerCase() !== 'a') { return; }
+  if (!cursor) { return; }
+  if (cursor.tagName.toLowerCase() !== 'a') { return displayUrl(cursor.parentElement); }
   const display = document.createElement('span');
   display.id = ATTRIBUTE.URLDISPLAY_ID;
   display.style.cssText = [

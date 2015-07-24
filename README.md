@@ -2,9 +2,16 @@
 
 ## ChangeLog
 
+### 0.3.6
+
+* Improve content key map feature.
+* Improve directional navigation.
+* Improve url display feature.
+
 ### 0.3.5
 
 * Improve performance.
+* Improve navigation target detection.
 
 ### 0.3.4
 

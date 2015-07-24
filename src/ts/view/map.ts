@@ -1,12 +1,17 @@
 
 import ATTRIBUTE = require('../attribute/attribute');
 
-export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftKey: boolean) => any) {
+export function map(
+  targets: HTMLElement[],
+  callback: (elem: HTMLElement, shiftKey: boolean) => any,
+  reverse: boolean,
+  stack: HTMLElement[] = []
+  ) {
   if (targets.length === 0) { return []; }
   
   const scrollTop = window.scrollY,
         scrollLeft = window.scrollX;
-  const keys = 'edsawgvcxlohnmzbptuy'.split(''),
+  const keys = 'dsawgvcxlohnmzbptuy'.split(''),
         container = document.createElement('div'),
         observer = document.createElement('input'),
         table = <{ [key: string]: HTMLElement }>{};
@@ -29,9 +34,9 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
   observer.focus();
   setTimeout(() => observer.focus(), 1000);
   const markers = targets.slice(0, keys.length)
-    .map(target => {
+    .map((target, i) => {
       const marker = document.createElement('span'),
-            key = keys.shift(),
+            key = keys[i],
             offset = calOffset(target);
       marker.classList.add(ATTRIBUTE.MARKER_TAG);
       marker.classList.add(ATTRIBUTE.MARKER_TAG + '-' + key);
@@ -82,6 +87,29 @@ export function map(targets: HTMLElement[], callback: (elem: HTMLElement, shiftK
 
     observer.blur();
     observer.remove();
+    
+    switch (key) {
+      case !reverse ? 'e' : 'E':
+        if (targets.length > keys.length) {
+          map(targets.slice(keys.length), callback, reverse, stack.concat(targets.slice(0, keys.length)));
+        }
+        else {
+          map(stack.concat(targets), callback, reverse);
+        }
+        break;
+      case !reverse ? 'E' : 'e':
+        if (stack.length === 0) {
+          stack = targets;
+          targets = [];
+        }
+        if (stack.length > keys.length) {
+          map(stack.slice(-keys.length).concat(targets), callback, reverse, stack.slice(0, Math.max(stack.length - keys.length, 0)));
+        }
+        else {
+          map(stack.concat(targets), callback, reverse);
+        }
+        break;
+    }
   }
   function calOffset(elem: HTMLElement) {
     const offset = elem.getBoundingClientRect();
