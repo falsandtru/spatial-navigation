@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.4.0
+
+* Fix navigation target detection.
+
 ### 0.3.9
 
 * Fix navigation target detection.
