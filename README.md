@@ -2,6 +2,11 @@
 
 ## ChangeLog
 
+### 0.3.7
+
+* Modify navigation target detection.
+* Modify content key map feature.
+
 ### 0.3.6
 
 * Improve content key map feature.

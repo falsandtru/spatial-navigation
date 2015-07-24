@@ -285,7 +285,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareCursorDistance(cursor: HTMLElement) {
-      const weight = 3;
+      const weight = 10;
       const cursorOffset = Offset(cursor);
       return function (a: HTMLElement, b: HTMLElement) {
         return distance(a) - distance(b);
@@ -384,8 +384,8 @@ export function analyze(data: MODEL.Data) {
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
-          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left + ((rect.right - rect.left) / 2)),
-                                                         Math.floor(rect.top + (rect.bottom - rect.top) / 2));
+          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left),
+                                                         Math.floor(rect.top));
     return point
       ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
       : isVisibleSize(elem) && isVisibleStyle(elem);
