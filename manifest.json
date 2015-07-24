@@ -1,7 +1,7 @@
 {
   "name": "Spatial Navigation",
   "short_name": "spatialnavigation",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "manifest_version": 2,
   "description": "Smart spatial navigation with key map to links. Bind WASDE and Q keys.",
   "content_scripts": [
