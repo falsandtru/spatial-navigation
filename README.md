@@ -2,9 +2,14 @@
 
 ## ChangeLog
 
+### 0.3.6
+
+* Improve url display feature.
+
 ### 0.3.5
 
 * Improve performance.
+* Improve navigation target detection.
 
 ### 0.3.4
 

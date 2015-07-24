@@ -172,7 +172,8 @@ export function emit(entity: ENTITY.EntityInterface, attribute: ATTRIBUTE.Attrib
 }
 
 function displayUrl(cursor: HTMLElement) {
-  if (cursor.tagName.toLowerCase() !== 'a') { return; }
+  if (!cursor) { return; }
+  if (cursor.tagName.toLowerCase() !== 'a') { return displayUrl(cursor.parentElement); }
   const display = document.createElement('span');
   display.id = ATTRIBUTE.URLDISPLAY_ID;
   display.style.cssText = [
