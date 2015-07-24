@@ -4,6 +4,7 @@
 
 ### 0.3.6
 
+* Improve directional navigation.
 * Improve url display feature.
 
 ### 0.3.5

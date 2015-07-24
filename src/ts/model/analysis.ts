@@ -55,7 +55,7 @@ export function analyze(data: MODEL.Data) {
       case ATTRIBUTE.COMMAND.UP_S:
         return !cursor
           ? findLeftTops(targets)
-          : findCursorTops(findCursorColumn(targets, cursor), cursor);
+          : findCursorColumn(findCursorTops(targets, cursor), cursor);
 
       case ATTRIBUTE.COMMAND.DOWN:
         return !cursor
@@ -65,7 +65,7 @@ export function analyze(data: MODEL.Data) {
       case ATTRIBUTE.COMMAND.DOWN_S:
         return !cursor
           ? findMainColumn(targets)
-          : findCursorBottoms(findCursorColumn(targets, cursor), cursor);
+          : findCursorColumn(findCursorBottoms(targets, cursor), cursor);
 
       case ATTRIBUTE.COMMAND.LEFT:
         return !cursor
@@ -97,7 +97,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group.length > 0)
         .reduce((_, group) => group, findLeftTops(targets))
         .map(shiftVisibleImg)
-        .sort(compareLeftTopDistance);
+        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
     }
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
@@ -106,7 +106,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
         .map(shiftVisibleImg)
-        .sort(compareLeftTopDistance);
+        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
     }
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
@@ -115,7 +115,7 @@ export function analyze(data: MODEL.Data) {
         .filter(group => group.length > 0)
         .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
         .map(shiftVisibleImg)
-        .sort(compareLeftTopDistance);
+        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
@@ -156,7 +156,7 @@ export function analyze(data: MODEL.Data) {
       return columns(targets.filter(isCursorColumn).filter(hasVisibleTextNode))
         .reduce((_, group) => group, targets)
         .map(shiftVisibleImg)
-        .sort(compareLeftTopDistance);
+        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
 
       function isCursorColumn(elem: HTMLElement) {
         return elem.getBoundingClientRect().left === left;
@@ -214,9 +214,14 @@ export function analyze(data: MODEL.Data) {
         return fontSize * fontWeightAverage * +(length > 3);
       }
       function calFontWeightRateAverage(textNodeParents: HTMLElement[]) {
-        const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length * calFontWeightRate(elem), 0),
-              len = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length, 0);
-        return len === 0 ? 0 : sum / len;
+        //const sum = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length * calFontWeightRate(elem), 0),
+        //      len = textNodeParents.reduce((r, elem) => r + elem.textContent.trim().length, 0);
+        //return len === 0 ? 0 : sum / len;
+        return textNodeParents
+          .sort((a, b) => a.textContent.trim().length - b.textContent.trim().length)
+          .slice(-1)
+          .map(elem => calFontWeightRate(elem))
+          .pop();
       }
       function calFontWeightRate(elem: HTMLElement) {
         const fontWeight = window.getComputedStyle(elem).fontWeight;
