@@ -171,7 +171,7 @@ export class View {
           unselect();
         }
         cursor.focus();
-        click(cursor, !shiftKey);
+        click(cursor, !shiftKey && cursor.tagName.toLowerCase() === 'a' && (<HTMLAnchorElement>cursor).href[0] !== '#');
       }
     }
   }
