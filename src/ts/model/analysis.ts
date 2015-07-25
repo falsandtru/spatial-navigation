@@ -208,7 +208,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
-      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30))
+      return calWeightAverage(a.filter(hasText).slice(0, 10)) - calWeightAverage(b.filter(hasText).slice(0, 10))
           || -compareLeftDistance(a[0], b[0]);
 
       function calWeightAverage(elems: HTMLElement[]) {
