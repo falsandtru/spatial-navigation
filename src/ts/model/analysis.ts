@@ -105,31 +105,35 @@ export function analyze(data: MODEL.Data) {
         .sort(compareLeftTopDistance);
     }
     function findMainColumn(targets: HTMLElement[]) {
-      return columns(targets.filter(hasVisibleTextNode))
-        .filter(group => group[0].getBoundingClientRect().left < (winWidth / 2))
+      return columns(targets.filter(target => target.getBoundingClientRect().left < (winWidth / 2)).filter(hasVisibleTextNode))
+        .sort(compareGroupsByTextWeightAverage)
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
         .reduce((_, group) => group, findLeftTops(targets))
         .map(shiftVisibleImg)
-        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
+        .sort(compareLeftTopDistance);
     }
     function findLeftColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets.filter(hasVisibleTextNode))
+      const left = mainColumn.length > 0 ? mainColumn[0].parentElement.getBoundingClientRect().left : Infinity;
+      return columns(targets.filter(target => target.getBoundingClientRect().right < left))
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
-        .reduce((r, group) => Offset(group[0]).left < Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .sort(compareGroupsByTextWeightAverage)
+        .reduce((_, group) => group, mainColumn)
         .map(shiftVisibleImg)
-        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
+        .sort(compareLeftTopDistance);
     }
     function findRightColumn(targets: HTMLElement[]) {
       const mainColumn = findMainColumn(targets);
-      return columns(targets.filter(hasVisibleTextNode))
+      const right = mainColumn.length > 0 ? mainColumn[0].parentElement.getBoundingClientRect().right : -Infinity;
+      return columns(targets.filter(target => target.getBoundingClientRect().left > right))
         .map(group => group.filter(isInWindow))
         .filter(group => group.length > 0)
-        .reduce((r, group) => Offset(group[0]).left > Offset(mainColumn[0]).left ? group : r, mainColumn)
+        .sort(compareGroupsByTextWeightAverage)
+        .reduce((_, group) => group, mainColumn)
         .map(shiftVisibleImg)
-        .sort((a, b) => compareGroupsByTextWeightAverage([b], [a]) || compareLeftTopDistance(a, b));
+        .sort(compareLeftTopDistance);
     }
     function findCursorTops(targets: HTMLElement[], cursor: HTMLElement) {
       const margin = 3;
@@ -190,11 +194,9 @@ export function analyze(data: MODEL.Data) {
     function columns(targets: HTMLElement[]) {
       return targets
         .sort(compareLeftDistance)
-        .reverse()
         .reduce(groupsByLeftDistance, [])
         .map(filterFewNodesGroup)
-        .filter(group => group.length > 1)
-        .sort(compareGroupsByTextWeightAverage);
+        .filter(group => group.length > 1);
     }
     function groupsByLeftDistance(groups: HTMLElement[][], elem: HTMLElement) {
       if (groups.length === 0) { return [[elem]]; }
@@ -206,7 +208,8 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
-      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30));
+      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30))
+          || -compareLeftDistance(a[0], b[0]);
 
       function calWeightAverage(elems: HTMLElement[]) {
         return calTextWeightAverage(elems);
