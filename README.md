@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.4.4
+
+* Fix link open mode behavior.
+
 ### 0.4.3
 
 * Fix navigation target detection.
