@@ -172,7 +172,7 @@ export class View {
           unselect();
         }
         cursor.focus();
-        click(cursor, !shiftKey && !(cursor.tagName.toLowerCase() === 'a' && (<HTMLAnchorElement>cursor).href[0] === '#'));
+        click(cursor, !shiftKey && !(cursor.tagName.toLowerCase() === 'a' && (<HTMLAnchorElement>cursor).href.indexOf('#') > -1));
       }
     }
   }

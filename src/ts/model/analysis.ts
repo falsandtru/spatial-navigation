@@ -14,7 +14,7 @@ const SELECTOR = [
   'video',
   'embed',
   '[onclick]',
-  '[tabindex]:not([role="tablist"]):not(#hdtb):not(#hdtbMenus)',
+  '[tabindex]:not([role="tablist"]):not(ul):not(#hdtb):not(#hdtbMenus)',
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
@@ -208,7 +208,7 @@ export function analyze(data: MODEL.Data) {
       }
     }
     function compareGroupsByTextWeightAverage(a: HTMLElement[], b: HTMLElement[]) {
-      return calWeightAverage(a.filter(hasText).slice(0, 30)) - calWeightAverage(b.filter(hasText).slice(0, 30))
+      return calWeightAverage(a.filter(hasText).slice(0, 10)) - calWeightAverage(b.filter(hasText).slice(0, 10))
           || -compareLeftDistance(a[0], b[0]);
 
       function calWeightAverage(elems: HTMLElement[]) {
@@ -395,8 +395,8 @@ export function analyze(data: MODEL.Data) {
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
-          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left) + 10,
-                                                         Math.floor(rect.top));
+          point = <HTMLElement>document.elementFromPoint(Math.ceil(rect.left + (rect.width / 2)),
+                                                         Math.ceil(rect.top + (rect.height / 2)));
     return point
       ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
       : isVisibleSize(elem) && isVisibleStyle(elem);
