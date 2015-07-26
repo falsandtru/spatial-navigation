@@ -14,7 +14,7 @@ const SELECTOR = [
   'video',
   'embed',
   '[onclick]',
-  '[tabindex]:not([role="tablist"]):not(#hdtb):not(#hdtbMenus)',
+  '[tabindex]:not([role="tablist"]):not(ul):not(#hdtb):not(#hdtbMenus)',
   //'[role="link"]',
   '[role="button"]',
   '[role="checkbox"]',
@@ -395,8 +395,8 @@ export function analyze(data: MODEL.Data) {
   }
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
-          point = <HTMLElement>document.elementFromPoint(Math.floor(rect.left) + 10,
-                                                         Math.floor(rect.top));
+          point = <HTMLElement>document.elementFromPoint(Math.ceil(rect.left + (rect.width / 2)),
+                                                         Math.ceil(rect.top + (rect.height / 2)));
     return point
       ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
       : isVisibleSize(elem) && isVisibleStyle(elem);
