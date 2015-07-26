@@ -396,9 +396,9 @@ export function analyze(data: MODEL.Data) {
   function isVisible(elem: HTMLElement) {
     const rect = elem.getBoundingClientRect(),
           point = <HTMLElement>document.elementFromPoint(Math.ceil(rect.left + (rect.width / 2)),
-                                                         Math.ceil(rect.top + (rect.height / 2)));
+                                                         Math.ceil(rect.top + Math.min(rect.height / 2, 10)));
     return point
-      ? isVisibleSize(elem) && (point === elem || isChild(elem, point) || point === elem.parentElement)
+      ? isVisibleSize(elem) && (point === elem || isChild(elem, point))
       : isVisibleSize(elem) && isVisibleStyle(elem);
 
     function isChild(parent: HTMLElement, child: HTMLElement) {
