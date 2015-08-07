@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.4.5
+
+* Change extension load timing to after Vimium loaded.
+
 ### 0.4.4
 
 * Fix navigation target detection.

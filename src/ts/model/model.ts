@@ -27,8 +27,10 @@ export interface Result {
 const views: VIEW.View[] = [];
 
 export function main() {
-  CONTROLLER.Controller([window])
-    .forEach(view => views.unshift(view));
+  setTimeout(_ =>
+    CONTROLLER.Controller([window])
+      .forEach(view => views.unshift(view))
+  , 1);
 }
 
 const stream = LazyChain<Data>();
