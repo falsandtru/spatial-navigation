@@ -27,10 +27,18 @@ export interface Result {
 const views: VIEW.View[] = [];
 
 export function main() {
-  setTimeout(_ =>
+
+  if (document.readyState === "loading") {
+    return window.addEventListener("DOMContentLoaded", register);
+  } else {
+    return register();
+  }
+  
+  function register() {
+    window.removeEventListener("DOMContentLoaded", register);
     CONTROLLER.Controller([window])
-      .forEach(view => views.unshift(view))
-  , 1);
+      .forEach(view => views.unshift(view));
+  }
 }
 
 const stream = LazyChain<Data>();
