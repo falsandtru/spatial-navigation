@@ -1,12 +1,12 @@
 {
-  "name": "spatialnavigation",
+  "name": "spatial-navigation",
   "version": "0.4.6",
   "description": "",
   "private": true,
-  "homepage": "https://github.com/falsandtru/spatialnavigation",
-  "repository": "falsandtru/spatialnavigation",
+  "homepage": "https://github.com/falsandtru/spatial-navigation",
+  "repository": "falsandtru/spatial-navigation",
   "keywords": [],
-  "main": "dist/raw/spatialnavigation.js",
+  "main": "dist/raw/spatial-navigation.js",
   "scripts": {
     "test": "grunt cov"
   },

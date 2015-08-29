@@ -1,6 +1,6 @@
 {
   "name": "Spatial Navigation",
-  "short_name": "spatialnavigation",
+  "short_name": "spatial-navigation",
   "version": "0.4.6",
   "manifest_version": 2,
   "description": "Smart spatial navigation with key map to links. Bind WASDE and Q keys.",
@@ -10,7 +10,7 @@
         "<all_urls>"
       ],
       "js": [
-        "dist/raw/spatialnavigation.js"
+        "dist/raw/spatial-navigation.js"
       ],
       "run_at": "document_end"
     }
