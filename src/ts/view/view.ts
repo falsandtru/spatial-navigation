@@ -83,6 +83,12 @@ export class View {
         case 'textbox':
           return true;
       }
+      do {
+        if ((<any>elem).contentEditable === 'true') {
+          return true;
+        }
+      }
+      while (elem = elem.parentElement);
       return false;
     }
   }

@@ -15,8 +15,8 @@ declare var LazyChain: {
     <T>(extend: Function): LazyChain<T>
     <T>(data: T[], extend?: any, offset?: number): LazyChain<T>
     <T>(stream: LazyChain<T>, extend?: any, offset?: number): LazyChain<T>
-    <T>(...streams: LazyChain.Thenable<T>[]): LazyChain<T>
-    id: LazyChain.Id
+    <T>(...streams: LAZYCHAIN.Thenable<T>[]): LazyChain<T>
+    id: LAZYCHAIN.Id
     uuid(): string
     args2array(args: IArguments): any[]
     args2array<T>(args: IArguments): T[]
@@ -25,34 +25,34 @@ declare var LazyChain: {
     memoize<T>(func: () => T): () => T
     cache<F extends Function>(func: F, size?: number): F
     store<T, U>(size?: number): { (key: T, value?: U): U }
-    resolve<T>(...values: T[]): LazyChain.Thenable<T>
-    reject<T>(...values: T[]): LazyChain.Thenable<T>
-    when<T>(promises: LazyChain.Thenable<T>[]): LazyChain.WhenThen<T>
-    deferred<T>(callback?: (resolve: (...values: T[]) => any, reject?: (...values: T[]) => any, notify?: (...values: T[]) => any) => any): LazyChain.Deferred<T>
+    resolve<T>(...values: T[]): LAZYCHAIN.Thenable<T>
+    reject<T>(...values: T[]): LAZYCHAIN.Thenable<T>
+    when<T>(promises: LAZYCHAIN.Thenable<T>[]): LAZYCHAIN.WhenThen<T>
+    deferred<T>(callback?: (resolve: (...values: T[]) => any, reject?: (...values: T[]) => any, notify?: (...values: T[]) => any) => any): LAZYCHAIN.Deferred<T>
+    dispatcher: LAZYCHAIN.Dispatcher
 }
 
-interface LazyChain<T> extends LazyChain.Stream<T> {
+interface LazyChain<T> extends LAZYCHAIN.Stream<T> {
 }
 
-interface LazyMonad<T, M> extends LazyChain.MonadStream<T, M> {
+interface LazyMonad<T, M> extends LAZYCHAIN.MonadStream<T, M> {
 }
 
 interface Window {
     LazyChain: typeof LazyChain
 }
 
-interface Array<T> extends LazyChain.StreamMethod<T> {
+interface Array<T> extends LAZYCHAIN.StreamMethod<T> {
 }
 
-declare module LazyChain {
+declare module LAZYCHAIN {
 
     interface Id {
         rest(): {}
     }
     
     interface Env {
-        constructor?: (...args: any[]) => void
-        prototype?: void|boolean
+        constructor?
     }
     
     interface Callback<T, U, V> {
@@ -215,6 +215,61 @@ declare module LazyChain {
         resolve(...values: T[]): Promise<T>;
         reject(...values: T[]): Promise<T>;
         promise(): Promise<T>;
+    }
+    
+    interface Dispatcher {
+        <T, U, V, W, S>(...patterns:
+            Array<
+                [
+                    [T|Function, U|Function, V|Function, W|Function],
+                    (p1?: T, p2?: U, p3?: V, p4?: W) => S
+                ]|
+                [
+                    [T|Function, U|Function, V|Function, W|Function],
+                    (p1?: T, p2?: U, p3?: V, p4?: W) => boolean,
+                    (p1?: T, p2?: U, p3?: V, p4?: W) => S
+                ]
+            >
+        ): (p1: T, p2: U, p3: V, p4: W) => S;
+        <T, U, V, S>(...patterns:
+            Array<
+                [
+                    [T|Function, U|Function, V|Function],
+                    (p1?: T, p2?: U, p3?: V) => S
+                ]|
+                [
+                    [T|Function, U|Function, V|Function],
+                    (p1?: T, p2?: U, p3?: V) => boolean,
+                    (p1?: T, p2?: U, p3?: V) => S
+                ]
+            >
+        ): (p1: T, p2: U, p3: V) => S;
+        <T, U, S>(...patterns:
+            Array<
+                [
+                    [T|Function, U|Function],
+                    (p1?: T, p2?: U) => S
+                ]|
+                [
+                    [T|Function, U|Function],
+                    (p1?: T, p2?: U) => boolean,
+                    (p1?: T, p2?: U) => S
+                ]
+            >
+        ): (p1: T, p2: U) => S;
+        <T, S>(...patterns:
+            Array<
+                [
+                    [T|Function],
+                    (p1?: T) => S
+                ]|
+                [
+                    [T|Function],
+                    (p1?: T) => boolean,
+                    (p1?: T) => S
+                ]
+            >
+        ): (p1: T) => S;
     }
 
 }

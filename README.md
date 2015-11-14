@@ -2,6 +2,10 @@
 
 ## ChangeLog
 
+### 0.4.7
+
+* Fix event management.
+
 ### 0.4.6
 
 * Fix extension load timing to after Vimium loaded.
